@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COZMETIX — Cildiniz. Çözümlendi. (Your Skin. Decoded.)</title>
+  <meta name="description" content="AI destekli cilt analizi, INCI OCR etiket tarayıcı, içerik uyumluluk denetleyicisi, öncesi/sonrası kıyaslama ve B2B API platformu." />
+  <meta name="theme-color" content="#1C1A17" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      background: #FAF8F6;
+      color: #1C1A17;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .font-serif {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; }
+    }
+  </style>
+</head>
+<body class="selection:bg-[#B76E5A] selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const BRAND = { name: "COZMETIX", tagline: "Your Skin. Decoded." };
+    const FREE_QUOTA = { maxAnalyses: 1, maxChats: 3 };
+
+    const C = {
+      bg: "#FAF8F6",
+      ink: "#1C1A17",
+      muted: "#6F6A62",
+      line: "#E8E3DD",
+      card: "#FFFFFF",
+      accent: "#B76E5A",
+      accent2: "#8A9B6E",
+      gold: "#C9A24B",
+    };
+
+    const T = {
+      tr: {
+        home: "Ana Sayfa", analyze: "Analiz", results: "Profil", myskin: "Cildim",
+        journal: "Günlük", products: "Ürünler & INCI", chat: "Danışman",
+        report: "Rapor (PDF)", premium: "Cozmetix+", admin: "Yönetim",
+        brand: "B2B API",
+        heroKicker: "AI Destekli Kişiselleştirilmiş Dermokozmetik",
+        heroTitle: "Cildiniz. Çözümlendi.",
+        heroSub: "Canlı kamera analizi, ürün arkası INCI etiket okuyucu, içerik çakışma kontrolü ve kişisel bakım rutini.",
+        ctaAnalyze: "Cildimi Analiz Et", ctaExplore: "Ürünleri & INCI Tarayıcıyı Aç",
+        s1: "Canlı Kamera ile Cildinizi Tanıyın",
+        s1t: "Gerçek zamanlı ışık kontrolüyle selfie çekin, Cozmetix AI kişisel cilt profilinizi oluştursun.",
+        s2: "İnteraktif Sabah & Akşam Rutini",
+        s2t: "Günlük adımlarınızı işaretleyin, serinizi (streak) koruyun ve bildirim alın.",
+        s3: "INCI OCR Tarayıcı & İçerik Uyumu",
+        s3t: "Ürün kutusunun arkasını taratın, Retinol + AHA/BHA gibi çakışmaları anında yakalayın.",
+        s4: "1 / 30 / 60 / 90. Gün Öncesi/Sonrası Kıyaslama",
+        s4t: "Kaydırıcı ile cilt tonu ve kızarıklık görünümündeki değişimi görsel olarak karşılaştırın.",
+        plusSub: "Sınırsız AI Analiz · INCI OCR · İçerik Uyumluluğu · Aylık PDF & E-posta Raporu",
+        footer: "Yalnızca kozmetik öneri · Tıbbi teşhis değildir · 6698 KVKK & GDPR uyumlu",
+      },
+      en: {
+        home: "Home", analyze: "Analyze", results: "Profile", myskin: "My Skin",
+        journal: "Journal", products: "Products & INCI", chat: "Advisor",
+        report: "Report (PDF)", premium: "Cozmetix+", admin: "Admin",
+        brand: "B2B API",
+        heroKicker: "AI-Powered Personalized Dermocosmetics",
+        heroTitle: "Your Skin. Decoded.",
+        heroSub: "Live camera skin analysis, back-of-box INCI OCR scanner, ingredient conflict checker, and smart routines.",
+        ctaAnalyze: "Analyze My Skin", ctaExplore: "Explore Products & INCI Scanner",
+        s1: "Understand Your Skin via Live Camera",
+        s1t: "Capture a selfie with real-time lighting checks and let Cozmetix AI build your profile.",
+        s2: "Interactive AM & PM Routine Tracker",
+        s2t: "Check off daily steps, build your streak, and receive smart browser reminders.",
+        s3: "INCI OCR Scanner & Conflict Checker",
+        s3t: "Scan cosmetic box ingredients and detect Retinol + AHA/BHA conflicts instantly.",
+        s4: "Day 1 / 30 / 60 / 90 Before & After Slider",
+        s4t: "Slide to compare visual changes in uneven tone and redness over time.",
+        plusSub: "Unlimited AI Scans · INCI OCR · Compatibility · Monthly PDF & Email Report",
+        footer: "Cosmetic recommendations only · Not medical advice · GDPR & KVKK compliant",
+      },
+    };
+
+    const MERCHANTS = {
+      trendyol: { id: "trendyol", name: "Trendyol", commissionRate: 0.10, badgeColor: "#F27A1A" },
+      sephora: { id: "sephora", name: "Sephora", commissionRate: 0.12, badgeColor: "#1C1A17" },
+      amazon: { id: "amazon", name: "Amazon", commissionRate: 0.08, badgeColor: "#FF9900" },
+    };
+
+    const REAL_DERMO_CATALOG = [
+      {
+        id: 101, brand: "THE ORDINARY", name: "Niacinamide 10% + Zinc 1% Pore Serum", category: "Serum", price: 11, score: 95,
+        ingredients: ["Niacinamide", "Zinc PCA", "Glycerin"],
+        why: ["T-bölgesi sebum ve parlama görünümünü dengeler", "Gözenek görünümünü sıkılaştırmaya yardımcı olur"],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=The+Ordinary+Niacinamide+10+Zinc+1",
+          sephora: "https://www.sephora.com.tr/arama?q=The+Ordinary+Niacinamide",
+          amazon: "https://www.amazon.com.tr/s?k=The+Ordinary+Niacinamide+10+Zinc+1",
+        },
+      },
+      {
+        id: 102, brand: "LA ROCHE-POSAY", name: "Cicaplast Baume B5+ Soothing Repair Balm", category: "Moisturizer", price: 22, score: 94,
+        ingredients: ["Panthenol (Vitamin B5) 5%", "Madecassoside (Centella)", "Zinc", "Shea Butter"],
+        why: ["Kızarıklık ve hassasiyet görünümünü yatıştırır", "Retinol sonrası bariyer onarımı sağlar"],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=La+Roche+Posay+Cicaplast+Baume+B5",
+          sephora: "https://www.sephora.com.tr/arama?q=Cicaplast+Baume+B5",
+          amazon: "https://www.amazon.com.tr/s?k=La+Roche+Posay+Cicaplast+Baume+B5",
+        },
+      },
+      {
+        id: 103, brand: "CERAVE", name: "Foaming Facial Cleanser (Ceramides + Niacinamide)", category: "Cleanser", price: 16, score: 93,
+        ingredients: ["Ceramide NP", "Ceramide AP", "Niacinamide", "Hyaluronic Acid"],
+        why: ["Cilt bariyerini kurutmadan fazla yağı arındırır", "3 temel seramid içerir"],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=CeraVe+Kopuren+Temizleyici",
+          sephora: "https://www.sephora.com.tr/arama?q=CeraVe+Cleanser",
+          amazon: "https://www.amazon.com.tr/s?k=CeraVe+Foaming+Cleanser",
+        },
+      },
+      {
+        id: 104, brand: "LA ROCHE-POSAY", name: "Anthelios UVMune 400 Invisible Fluid SPF 50+", category: "Sunscreen", price: 26, score: 96,
+        ingredients: ["Mexoryl 400", "SPF 50", "Glycerin", "Tocopherol"],
+        why: ["Leke görünümüne karşı ultra uzun UVA koruması", "Beyaz iz bırakmayan akışkan doku"],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=La+Roche+Posay+Anthelios+UVMune+400",
+          sephora: "https://www.sephora.com.tr/arama?q=Anthelios+UVMune",
+          amazon: "https://www.amazon.com.tr/s?k=La+Roche+Posay+Anthelios+UVMune+400",
+        },
+      },
+      {
+        id: 105, brand: "PAULA'S CHOICE", name: "Skin Perfecting 2% BHA Liquid Exfoliant", category: "Treatment", price: 35, score: 91,
+        ingredients: ["Salicylic Acid (BHA) 2%", "Green Tea Extract"],
+        why: ["Gözenek içindeki tıkanıklıkları ve pürüzlü dokuyu hedefler", "Haftada 2–3 akşam kullanıma uygun"],
+        sponsored: true,
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=Paulas+Choice+2+BHA+Liquid+Exfoliant",
+          sephora: "https://www.sephora.com.tr/arama?q=Paulas+Choice+BHA",
+          amazon: "https://www.amazon.com.tr/s?k=Paulas+Choice+2+BHA",
+        },
+      },
+      {
+        id: 106, brand: "CERAVE", name: "Resurfacing Retinol Serum", category: "Treatment", price: 24, score: 89,
+        ingredients: ["Encapsulated Retinol", "Ceramide NP", "Niacinamide"],
+        why: ["Kapsüllenmiş Retinol ile tahriş etmeden doku görünümünü yeniler"],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=CeraVe+Resurfacing+Retinol+Serum",
+          sephora: "https://www.sephora.com.tr/arama?q=CeraVe+Retinol",
+          amazon: "https://www.amazon.com.tr/s?k=CeraVe+Retinol+Serum",
+        },
+      },
+    ];
+
+    const INITIAL_SKIN_METRICS = [
+      { key: "Oiliness", value: 62, focus: false },
+      { key: "Dryness", value: 31, focus: false },
+      { key: "Texture", value: 44, focus: true },
+      { key: "Pore Visibility", value: 48, focus: false },
+      { key: "Uneven Tone", value: 51, focus: true },
+      { key: "Visible Redness", value: 27, focus: false },
+    ];
+
+    const INITIAL_ROUTINE = {
+      Morning: [
+        { step: "Cleanser", note: "Gentle, low-pH gel to avoid stripping the T-zone.", freq: "Daily" },
+        { step: "Vitamin C / Hyaluronic Serum", note: "Supports a brighter, more hydrated tone.", freq: "Daily" },
+        { step: "Moisturizer", note: "Lightweight barrier support for combination skin.", freq: "Daily" },
+        { step: "SPF 50", note: "Non-negotiable photoprotection.", freq: "Daily" },
+      ],
+      Evening: [
+        { step: "Cleanser", note: "Double cleanse on makeup/sunscreen days.", freq: "Daily" },
+        { step: "Niacinamide 10% Serum", note: "Targets visible pores and uneven tone appearance.", freq: "Daily" },
+        { step: "Retinol / BHA Treatment", note: "Smoother-looking texture support. Start 2×/week.", freq: "2–3×/week" },
+        { step: "Cicaplast / Ceramide Balm", note: "Barrier-support formula with ceramides & B5.", freq: "Daily" },
+      ],
+    };
+
+    function Score({ score }) {
+      const color = score >= 90 ? C.accent2 : score >= 85 ? C.gold : C.muted;
+      return (
+        <div className="flex items-center gap-2 shrink-0">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke={C.line} strokeWidth="4" />
+            <circle
+              cx="22" cy="22" r="18" fill="none" stroke={color} strokeWidth="4"
+              strokeDasharray={`${(score / 100) * 113} 113`} strokeLinecap="round"
+              transform="rotate(-90 22 22)"
+            />
+            <text x="22" y="26" textAnchor="middle" fontSize="12" fontWeight="700" fill={C.ink}>{score}%</text>
+          </svg>
+        </div>
+      );
+    }
+
+    function Metric({ label, value, focus }) {
+      return (
+        <div className="rounded-2xl p-4" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+          <div className="flex justify-between items-baseline mb-2">
+            <span className="text-sm font-medium">{label}</span>
+            <span className="text-xs" style={{ color: C.muted }}>{value}/100</span>
+          </div>
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: C.line }}>
+            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value}%`, background: focus ? C.accent : C.gold }} />
+          </div>
+          {focus && <div className="mt-2 text-[10px] uppercase tracking-widest" style={{ color: C.accent }}>Focus area</div>}
+        </div>
+      );
+    }
+
+    function ProductCard({ p, onOpen }) {
+      return (
+        <div
+          onClick={() => onOpen(p)}
+          className="cursor-pointer rounded-2xl overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg"
+          style={{ background: C.card, border: `1px solid ${C.line}` }}
+        >
+          <div className="h-28 flex items-center justify-center relative" style={{ background: `linear-gradient(135deg, ${C.bg}, #EFE7DE)` }}>
+            <div className="w-14 h-20 rounded-lg flex items-end justify-center pb-2 shadow-md px-1" style={{ background: "#E4E0D7" }}>
+              <span className="text-[7px] tracking-widest font-bold truncate" style={{ color: C.ink }}>{p.brand}</span>
+            </div>
+            {p.sponsored && (
+              <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full" style={{ background: C.gold, color: "#fff" }}>
+                Sponsored
+              </span>
+            )}
+          </div>
+          <div className="p-4">
+            <div className="flex justify-between items-start gap-2">
+              <div>
+                <div className="text-[10px] uppercase tracking-widest" style={{ color: C.muted }}>{p.brand}</div>
+                <div className="font-medium leading-snug text-sm">{p.name}</div>
+              </div>
+              <Score score={p.score} />
+            </div>
+            <div className="mt-3 flex justify-between items-center">
+              <span className="text-xs" style={{ color: C.muted }}>{p.category}</span>
+              <span className="font-semibold text-sm">${p.price}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function LiveCameraCapture({ onCapture, onFallbackUpload, lang = "tr" }) {
+      const tr = lang === "tr";
+      const videoRef = useRef(null);
+      const streamRef = useRef(null);
+      const [cameraActive, setCameraActive] = useState(false);
+      const [cameraError, setCameraError] = useState(null);
+      const [lightScore, setLightScore] = useState(128);
+      const [lightStatus, setLightStatus] = useState("optimal");
+
+      const startCamera = async () => {
+        setCameraError(null);
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user", width: { ideal: 1080 }, height: { ideal: 1080 } },
+            audio: false,
+          });
+          streamRef.current = stream;
+          setCameraActive(true);
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+              videoRef.current.play().catch(() => {});
+            }
+          }, 60);
+        } catch {
+          setCameraError(
+            tr
+              ? "Tarayıcı kamera izni kapalı veya kamera bulunamadı. 'Hızlı Demo' butonunu kullanabilirsiniz."
+              : "Camera permission denied or unavailable. Use 'Demo Scan'."
+          );
+        }
+      };
+
+      const stopCamera = () => {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((t) => t.stop());
+          streamRef.current = null;
+        }
+        setCameraActive(false);
+      };
+
+      useEffect(() => () => stopCamera(), []);
+
+      const captureFrame = () => {
+        const video = videoRef.current;
+        if (!video) return;
+        const canvas = document.createElement("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        const ctx = canvas.getContext("2d");
+        ctx.translate(800, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, 800, 800);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        stopCamera();
+        onCapture(dataUrl);
+      };
+
+      return (
+        <div>
+          {!cameraActive ? (
+            <div>
+              <div
+                onClick={startCamera}
+                className="cursor-pointer mx-auto w-52 h-52 rounded-full border-2 border-dashed flex flex-col items-center justify-center mb-5 transition hover:bg-black/5"
+                style={{ borderColor: C.accent }}
+              >
+                <div className="w-20 h-28 rounded-full mb-2" style={{ background: "linear-gradient(160deg,#E7D3C3,#D9B8A5)" }} />
+                <span className="text-[11px] font-medium px-4" style={{ color: C.ink }}>
+                  {tr ? "Canlı Kamerayı Aç" : "Start Live Camera"}
+                </span>
+              </div>
+              {cameraError && (
+                <div className="text-xs p-3 rounded-xl mb-4" style={{ background: "#FDECEC", color: C.accent }}>
+                  {cameraError}
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={startCamera} className="py-3 rounded-full text-xs font-medium" style={{ background: C.ink, color: "#FFFDF9" }}>
+                  {tr ? "📷 Kamera Aç" : "📷 Camera"}
+                </button>
+                <button onClick={() => onCapture(null)} className="py-3 rounded-full text-xs font-medium" style={{ background: C.accent, color: "#fff" }}>
+                  {tr ? "⚡ Hızlı Demo Analiz" : "⚡ Instant Demo Scan"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="relative mx-auto w-64 h-64 rounded-3xl overflow-hidden mb-4 shadow-lg bg-black">
+                <video ref={videoRef} playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={stopCamera} className="px-4 py-3 rounded-full text-xs" style={{ border: `1px solid ${C.line}` }}>
+                  {tr ? "İptal" : "Cancel"}
+                </button>
+                <button onClick={captureFrame} className="flex-1 py-3 rounded-full text-sm font-medium" style={{ background: C.ink, color: "#FFFDF9" }}>
+                  {tr ? "Fotoğrafı Çek & Analiz Et" : "Capture & Analyze"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [page, setPage] = useState("home");
+      const [detail, setDetail] = useState(null);
+      const [lang, setLang] = useState("tr");
+      const [toast, setToast] = useState(null);
+      const [isPremium, setIsPremium] = useState(false);
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [quota, setQuota] = useState({ analysesUsed: 0, chatsUsed: 0 });
+      const [products] = useState(REAL_DERMO_CATALOG);
+      const [affiliateClicks, setAffiliateClicks] = useState([]);
+      const [sliderPos, setSliderPos] = useState(50);
+
+      const [inciInput, setInciInput] = useState("Aqua, Glycerin, Panthenol, Madecassoside, Ceramide NP, Niacinamide");
+      const [inciScore, setInciScore] = useState(95);
+      const [compA, setCompA] = useState(105);
+      const [compB, setCompB] = useState(106);
+      const [completedSteps, setCompletedSteps] = useState(["Cleanser", "SPF 50"]);
+
+      const [chatMsgs, setChatMsgs] = useState([
+        {
+          role: "ai",
+          text: "Merhaba! Ben Cozmetix AI Güzellik Danışmanınız. Karma cilt profiliniz ve dermokozmetik kataloğunuz yüklendi. Rutininiz veya ürün seçimi hakkında sorunuzu yazabilirsiniz.",
+        },
+      ]);
+      const [chatInput, setChatInput] = useState("");
+
+      const tr = lang === "tr";
+      const t = (k) => T[lang]?.[k] || T.tr[k] || k;
+
+      const notify = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 3200);
+      };
+
+      const handleMerchantClick = (product, merchantKey) => {
+        const m = MERCHANTS[merchantKey];
+        const comm = +(product.price * m.commissionRate).toFixed(2);
+        setAffiliateClicks((prev) => [
+          { id: Date.now(), brand: product.brand, name: product.name, merchant: m.name, commission: comm },
+          ...prev,
+        ]);
+        notify(`${m.name} mağazasına yönlendiriliyor (+$${comm} komisyon kaydedildi)`);
+        window.open(product.stores?.[merchantKey] || "https://www.trendyol.com", "_blank", "noopener,noreferrer");
+      };
+
+      const NAV = [
+        { key: "home", label: t("home") },
+        { key: "analyze", label: t("analyze") },
+        { key: "results", label: t("results") },
+        { key: "myskin", label: t("myskin") },
+        { key: "products", label: t("products") },
+        { key: "chat", label: t("chat") },
+        { key: "report", label: t("report") },
+        { key: "premium", label: t("premium") },
+        ...(isAdmin
+          ? [
+              { key: "admin", label: "🔒 " + t("admin") },
+              { key: "brand", label: "🔒 " + t("brand") },
+            ]
+          : []),
+      ];
+
+      const isConflict = (compA === 105 && compB === 106) || (compA === 106 && compB === 105);
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          {toast && (
+            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-medium shadow-xl" style={{ background: C.ink, color: "#FFFDF9" }}>
+              {toast}
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4" style={{ borderBottom: `1px solid ${C.line}` }}>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setPage("home")} className="font-serif text-xl font-bold tracking-widest">
+                {BRAND.name}
+              </button>
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold" style={{ background: isPremium ? C.gold : C.line, color: isPremium ? "#fff" : C.ink }}>
+                {isPremium ? "COZMETIX+" : "FREE"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsAdmin(!isAdmin);
+                  if (!isAdmin) {
+                    setPage("admin");
+                    notify("🔓 Admin & B2B API sekmeleri açıldı!");
+                  }
+                }}
+                className="px-3 py-1 rounded-full text-xs font-medium"
+                style={{ background: isAdmin ? C.accent2 : C.card, color: isAdmin ? "#fff" : C.ink, border: `1px solid ${C.line}` }}
+              >
+                {isAdmin ? "🔓 Admin Açık" : "🔒 Admin / B2B Aç"}
+              </button>
+
+              <div className="flex rounded-full p-0.5" style={{ border: `1px solid ${C.line}`, background: C.card }}>
+                {["tr", "en"].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setLang(l)}
+                    className="px-3 py-1 rounded-full text-xs uppercase"
+                    style={{ background: lang === l ? C.ink : "transparent", color: lang === l ? "#FFFDF9" : C.muted }}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-1.5 px-6 py-2.5 overflow-x-auto" style={{ borderBottom: `1px solid ${C.line}` }}>
+            {NAV.map((n) => (
+              <button
+                key={n.key}
+                onClick={() => setPage(n.key)}
+                className="px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition"
+                style={{ background: page === n.key ? C.ink : "transparent", color: page === n.key ? "#FFFDF9" : C.muted }}
+              >
+                {n.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8">
+            {page === "home" && (
+              <div>
+                <div className="rounded-3xl p-8 md:p-12 mb-8 flex flex-col md:flex-row items-center gap-8" style={{ background: C.ink, color: "#FFFDF9" }}>
+                  <div className="flex-1">
+                    <div className="text-xs uppercase tracking-widest mb-2" style={{ color: C.gold }}>{t("heroKicker")}</div>
+                    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight mb-4">{t("heroTitle")}</h1>
+                    <p className="text-sm mb-6 max-w-lg" style={{ color: "#C9C2B8" }}>{t("heroSub")}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <button onClick={() => setPage("analyze")} className="px-6 py-3 rounded-full text-sm font-semibold" style={{ background: "#FFFDF9", color: C.ink }}>
+                        {t("ctaAnalyze")}
+                      </button>
+                      <button onClick={() => setPage("products")} className="px-6 py-3 rounded-full text-sm font-semibold" style={{ border: "1px solid rgba(255,255,255,0.4)", color: "#FFFDF9" }}>
+                        {t("ctaExplore")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  {[
+                    { title: t("s1"), text: t("s1t"), target: "analyze" },
+                    { title: t("s2"), text: t("s2t"), target: "myskin" },
+                    { title: t("s3"), text: t("s3t"), target: "products" },
+                    { title: t("s4"), text: t("s4t"), target: "myskin" },
+                  ].map((s, i) => (
+                    <div key={i} onClick={() => setPage(s.target)} className="cursor-pointer rounded-2xl p-6 transition hover:shadow-md" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                      <div className="text-xs font-bold mb-1" style={{ color: C.accent }}>0{i + 1}</div>
+                      <h3 className="text-xl font-serif font-bold mb-1">{s.title}</h3>
+                      <p className="text-xs" style={{ color: C.muted }}>{s.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {page === "analyze" && (
+              <div className="max-w-lg mx-auto rounded-3xl p-8 text-center" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                <h2 className="text-2xl font-serif font-bold mb-2">{tr ? "Canlı Kamera & Işık Kontrolü" : "Live Camera & Lighting Check"}</h2>
+                <p className="text-xs mb-6" style={{ color: C.muted }}>
+                  {tr ? "Yüzünüzü çerçeveye hizalayın veya hızlı demoyu başlatın" : "Align your face in the frame or run instant demo"}
+                </p>
+                <LiveCameraCapture
+                  lang={lang}
+                  onCapture={() => {
+                    setQuota((q) => ({ ...q, analysesUsed: q.analysesUsed + 1 }));
+                    notify(tr ? "✓ Cilt analizi tamamlandı!" : "✓ Skin analysis complete!");
+                    setPage("results");
+                  }}
+                />
+              </div>
+            )}
+
+            {page === "results" && (
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-serif font-bold text-center mb-6">Combination Skin Profile</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+                  {INITIAL_SKIN_METRICS.map((m) => (
+                    <Metric key={m.key} label={m.key} value={m.value} focus={m.focus} />
+                  ))}
+                </div>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {products.slice(0, 3).map((p) => (
+                    <ProductCard key={p.id} p={p} onOpen={setDetail} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {page === "myskin" && (
+              <div className="max-w-3xl mx-auto space-y-6">
+                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-serif font-bold">{tr ? "Günlük Rutin & Seri Takipçisi" : "Daily Routine & Streak"}</h3>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: C.ink, color: "#FFFDF9" }}>
+                      ★ {completedSteps.length} Adım Tamamlandı
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {INITIAL_ROUTINE.Morning.map((s, idx) => {
+                      const done = completedSteps.includes(s.step);
+                      return (
+                        <div
+                          key={s.step}
+                          onClick={() =>
+                            setCompletedSteps((prev) =>
+                              prev.includes(s.step) ? prev.filter((x) => x !== s.step) : [...prev, s.step]
+                            )
+                          }
+                          className="cursor-pointer flex items-center gap-3 p-3 rounded-xl"
+                          style={{ background: done ? "#EBF2E5" : C.bg, border: `1px solid ${C.line}` }}
+                        >
+                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: done ? C.accent2 : C.card, color: done ? "#fff" : C.ink }}>
+                            {done ? "✓" : idx + 1}
+                          </span>
+                          <div className="text-xs">
+                            <div className="font-bold">{s.step}</div>
+                            <div style={{ color: C.muted }}>{s.note}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  <h3 className="text-xl font-serif font-bold mb-3">{tr ? "1. Gün vs 90. Gün Öncesi/Sonrası Kıyaslama" : "Day 1 vs Day 90 Before/After"}</h3>
+                  <input
+                    type="range"
+                    min="10"
+                    max="90"
+                    value={sliderPos}
+                    onChange={(e) => setSliderPos(Number(e.target.value))}
+                    className="w-full mb-2"
+                  />
+                  <div className="flex justify-between text-xs" style={{ color: C.muted }}>
+                    <span>1. Gün (Ton Eşitsizliği: 51)</span>
+                    <span>Kaydırıcı: %{sliderPos}</span>
+                    <span style={{ color: C.accent2 }}>90. Gün (Ton Eşitsizliği: 33)</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {page === "products" && (
+              <div className="space-y-6">
+                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  <h3 className="text-xl font-serif font-bold mb-2">{tr ? "Ürün Arkası İçindekiler (INCI) Tarayıcı" : "Back-of-Box INCI Scanner"}</h3>
+                  <div className="flex flex-col sm:flex-row gap-2 mb-3">
+                    <input
+                      value={inciInput}
+                      onChange={(e) => setInciInput(e.target.value)}
+                      className="flex-1 px-4 py-2.5 rounded-xl text-xs"
+                      style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                    />
+                    <button
+                      onClick={() => {
+                        const hasBad = inciInput.toLowerCase().includes("alcohol") || inciInput.toLowerCase().includes("parfum");
+                        setInciScore(hasBad ? 58 : 95);
+                        notify(tr ? "INCI analizi güncellendi!" : "INCI analyzed!");
+                      }}
+                      className="px-5 py-2.5 rounded-full text-xs font-semibold"
+                      style={{ background: C.ink, color: "#FFFDF9" }}
+                    >
+                      {tr ? "INCI Analiz Et" : "Decode INCI"}
+                    </button>
+                  </div>
+                  <div className="text-xs font-semibold" style={{ color: inciScore >= 80 ? C.accent2 : C.accent }}>
+                    Cozmetix Match Score: %{inciScore}
+                  </div>
+                </div>
+
+                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  <h3 className="text-xl font-serif font-bold mb-3">{tr ? "İçerik Çakışma Denetleyicisi" : "Ingredient Conflict Checker"}</h3>
+                  <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                    <select value={compA} onChange={(e) => setCompA(Number(e.target.value))} className="p-2.5 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
+                      {products.map((p) => <option key={p.id} value={p.id}>{p.brand} — {p.name}</option>)}
+                    </select>
+                    <select value={compB} onChange={(e) => setCompB(Number(e.target.value))} className="p-2.5 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
+                      {products.map((p) => <option key={p.id} value={p.id}>{p.brand} — {p.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="p-3.5 rounded-xl text-xs" style={{ background: C.bg }}>
+                    <strong style={{ color: isConflict ? C.accent : C.accent2 }}>
+                      {isConflict ? "✕ Çakışma Uyarısı (BHA + Retinol): " : "✓ Güvenli Sinerji: "}
+                    </strong>
+                    {isConflict
+                      ? "Aynı akşam üst üste uygulamayın; farklı gecelerde dönüşümlü kullanın."
+                      : "Aynı rutinde güvenle birlikte uygulanabilir."}
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {products.map((p) => (
+                    <ProductCard key={p.id} p={p} onOpen={setDetail} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {page === "chat" && (
+              <div className="max-w-2xl mx-auto">
+                <h2 className="text-2xl font-serif font-bold mb-3">AI Beauty Advisor</h2>
+                <div className="rounded-3xl p-4 h-80 overflow-y-auto mb-3" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  {chatMsgs.map((m, i) => (
+                    <div key={i} className={"flex mb-3 " + (m.role === "user" ? "justify-end" : "justify-start")}>
+                      <div className="max-w-md rounded-2xl px-4 py-2.5 text-xs leading-relaxed" style={{ background: m.role === "user" ? C.ink : C.bg, color: m.role === "user" ? "#FFFDF9" : C.ink }}>
+                        {m.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder="Sorunuzu yazın..."
+                    className="flex-1 px-4 py-3 rounded-full text-xs outline-none"
+                    style={{ background: C.card, border: `1px solid ${C.line}` }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (!chatInput.trim()) return;
+                      const q = chatInput;
+                      setChatInput("");
+                      setChatMsgs((prev) => [
+                        ...prev,
+                        { role: "user", text: q },
+                        { role: "ai", text: "Karma cilt profiliniz için sabah Anthelios SPF 50+, akşam The Ordinary Niacinamide %10 ve Cicaplast B5+ kombinasyonunu öneririm." },
+                      ]);
+                    }}
+                    className="px-6 rounded-full text-xs font-semibold"
+                    style={{ background: C.ink, color: "#FFFDF9" }}
+                  >
+                    Gönder
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {page === "report" && (
+              <div className="max-w-xl mx-auto rounded-2xl p-8 shadow-lg" style={{ background: "#FFF", border: `1px solid ${C.line}` }}>
+                <div className="flex justify-between items-center pb-4 mb-6" style={{ borderBottom: `2px solid ${C.ink}` }}>
+                  <div>
+                    <div className="text-lg font-serif font-bold tracking-widest">COZMETIX</div>
+                    <div className="text-xs" style={{ color: C.muted }}>Aylık AI Cilt Raporu</div>
+                  </div>
+                  <button onClick={() => window.print()} className="px-4 py-2 rounded-full text-xs font-semibold" style={{ background: C.ink, color: "#FFFDF9" }}>
+                    ⤓ PDF İndir
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {INITIAL_SKIN_METRICS.map((m) => (
+                    <div key={m.key} className="p-3 rounded-xl text-center" style={{ background: C.bg }}>
+                      <div className="text-xs" style={{ color: C.muted }}>{m.key}</div>
+                      <div className="text-lg font-serif font-bold">{m.value}/100</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {page === "premium" && (
+              <div className="max-w-md mx-auto rounded-3xl p-8 text-center" style={{ background: C.ink, color: "#FFFDF9" }}>
+                <div className="text-xs uppercase tracking-widest mb-2" style={{ color: C.gold }}>COZMETIX+</div>
+                <h2 className="text-3xl font-serif font-bold mb-3">$9.99 / ay</h2>
+                <p className="text-xs mb-6" style={{ color: "#C9C2B8" }}>{t("plusSub")}</p>
+                <button
+                  onClick={() => {
+                    setIsPremium(!isPremium);
+                    notify("✓ Cozmetix+ durumu güncellendi!");
+                  }}
+                  className="w-full py-3 rounded-full text-xs font-semibold"
+                  style={{ background: C.accent, color: "#fff" }}
+                >
+                  {isPremium ? "Ücretsiz Plana Dön" : "Cozmetix+ Aktif Et"}
+                </button>
+              </div>
+            )}
+
+            {page === "admin" && (
+              <div className="max-w-3xl mx-auto rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                <h2 className="text-2xl font-serif font-bold mb-4">Admin & Affiliate Komisyon Takibi</h2>
+                <p className="text-xs mb-4" style={{ color: C.muted }}>
+                  Toplam Mağaza Tıklaması: <strong>{affiliateClicks.length}</strong>
+                </p>
+                {affiliateClicks.map((c) => (
+                  <div key={c.id} className="flex justify-between text-xs p-2.5 mb-2 rounded-xl" style={{ background: C.bg }}>
+                    <span>{c.brand} — {c.name} ({c.merchant})</span>
+                    <strong style={{ color: C.accent2 }}>+${c.commission}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {page === "brand" && (
+              <div className="max-w-3xl mx-auto rounded-3xl p-6" style={{ background: C.ink, color: "#FFFDF9" }}>
+                <div className="text-xs uppercase tracking-widest mb-1" style={{ color: C.gold }}>B2B API PLAYGROUND</div>
+                <h2 className="text-2xl font-serif font-bold mb-4">POST /v1/product-match</h2>
+                <pre className="p-4 rounded-xl text-xs bg-black text-green-300 overflow-x-auto">
+                  {JSON.stringify({ status: 200, sku: "LRP-CICA-B5", cozmetixMatchScore: 94, badge: "Excellent Match" }, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            {detail && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(28,26,23,0.6)" }} onClick={() => setDetail(null)}>
+                <div onClick={(e) => e.stopPropagation()} className="max-w-md w-full rounded-3xl p-6" style={{ background: C.card }}>
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="text-xs uppercase tracking-widest" style={{ color: C.muted }}>{detail.brand}</div>
+                      <h3 className="text-lg font-serif font-bold">{detail.name}</h3>
+                    </div>
+                    <Score score={detail.score} />
+                  </div>
+                  <div className="mb-4">
+                    {(detail.why || []).map((w) => <div key={w} className="text-xs mb-1">✓ {w}</div>)}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {Object.values(MERCHANTS).map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => handleMerchantClick(detail, m.id)}
+                        className="py-2.5 px-2 rounded-xl text-xs font-semibold"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      >
+                        {m.name} ↗
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => setDetail(null)} className="w-full py-2.5 rounded-full text-xs" style={{ border: `1px solid ${C.line}` }}>
+                    Kapat
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <footer className="px-6 py-5 text-xs text-center" style={{ borderTop: `1px solid ${C.line}`, color: C.muted }}>
+            © 2026 COZMETIX · {t("footer")}
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
