@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>COZMETIX — Cildiniz. Çözümlendi. | AI Dermokozmetik Platformu</title>
-  <meta name="description" content="AI destekli cilt analizi, e-posta doğrulamalı üyelik, INCI OCR etiket tarayıcı ve Trendyol/Sephora/Amazon mağaza karşılaştırması." />
+  <meta name="description" content="AI destekli cilt analizi, gerçek e-posta doğrulamalı üyelik, INCI OCR etiket tarayıcı ve Trendyol/Sephora/Amazon mağaza karşılaştırması." />
   <meta name="theme-color" content="#1C1A17" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <style>
     body {
@@ -39,6 +39,15 @@
     const { useState, useEffect, useRef } = React;
 
     const BRAND = { name: "COZMETIX", tagline: "Your Skin. Decoded." };
+
+    // ============================================================
+    // EMAILJS CANLI ANAHTARLARINIZ (GÖMÜLÜ VE AKTİF)
+    // ============================================================
+    const DEFAULT_EMAILJS_CONFIG = {
+      serviceId: "service_sv0apbl",
+      templateId: "template_x6xh3tc",
+      publicKey: "APA_rWtNWOeGS8yyn",
+    };
 
     const C = {
       bg: "#FAF8F6",
@@ -205,6 +214,54 @@
       ],
     };
 
+    // ============================================================
+    // GERÇEK EMAILJS GÖNDERİM FONKSİYONU
+    // ============================================================
+    async function sendRealVerificationEmail({ toEmail, toName, code, emailJsConfig }) {
+      const service_id = (emailJsConfig?.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId).trim();
+      const template_id = (emailJsConfig?.templateId || DEFAULT_EMAILJS_CONFIG.templateId).trim();
+      const user_id = (emailJsConfig?.publicKey || DEFAULT_EMAILJS_CONFIG.publicKey).trim();
+
+      const templateParams = {
+        to_email: toEmail,
+        email: toEmail,
+        user_email: toEmail,
+        to_name: toName,
+        name: toName,
+        verification_code: code,
+        code: code,
+        title: `Doğrulama Kodunuz: ${code}`,
+        message: `COZMETIX hesabınızı aktifleştirmek için 6 haneli doğrulama kodunuz: ${code}`,
+      };
+
+      try {
+        if (window.emailjs) {
+          await window.emailjs.send(service_id, template_id, templateParams, { publicKey: user_id });
+          return { sentReal: true };
+        }
+
+        const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service_id,
+            template_id,
+            user_id,
+            template_params: templateParams,
+          }),
+        });
+
+        if (response.ok) {
+          return { sentReal: true };
+        } else {
+          const errText = await response.text();
+          return { sentReal: false, reason: errText };
+        }
+      } catch (err) {
+        return { sentReal: false, reason: err?.text || err?.message || "Bağlantı hatası" };
+      }
+    }
+
     function Score({ score }) {
       const color = score >= 90 ? C.accent2 : score >= 85 ? C.gold : C.muted;
       return (
@@ -299,31 +356,30 @@
     }
 
     // ============================================================
-    // DOĞRULAMALI ÜYELİK SİSTEMİ (KAYIT KONTROLÜ + 6 HANELİ E-POSTA ONAYI)
+    // DOĞRULAMALI ÜYELİK & GERÇEK EMAILJS E-POSTA ONAY MODÜLÜ
     // ============================================================
     function AuthAndOnboarding({
       user,
       setUser,
       registeredUsers,
       setRegisteredUsers,
+      emailJsConfig,
       onFinish,
       notify,
-      onShowEmailBanner,
     }) {
-      const [mode, setMode] = useState("login"); // "login" | "register" | "verify"
-      const [step, setStep] = useState(0); // 0: Hesap/Doğrulama, 1: Yaş, 2: Endişeler, 3: Bütçe
+      const [mode, setMode] = useState("register"); // "login" | "register" | "verify"
+      const [step, setStep] = useState(0);
       const [errorMsg, setErrorMsg] = useState("");
+      const [sendingEmail, setSendingEmail] = useState(false);
 
       const [name, setName] = useState("");
       const [email, setEmail] = useState("");
       const [password, setPassword] = useState("");
       const [kvkkAccepted, setKvkkAccepted] = useState(true);
 
-      // E-posta Doğrulama (OTP) State'leri
       const [pendingEmail, setPendingEmail] = useState("");
       const [otpInput, setOtpInput] = useState("");
 
-      // Cilt Anketi State'leri
       const [ageRange, setAgeRange] = useState("25–34");
       const [concerns, setConcerns] = useState(["Gözenek Görünümü", "Ton Eşitsizliği & Leke"]);
       const [budget, setBudget] = useState("₺500 – ₺1.000");
@@ -333,8 +389,25 @@
         else setList([...list, val]);
       };
 
-      // 1. GİRİŞ YAP KONTROLÜ (Kayıtsız veya E-postası Onaylanmamışsa Kesinlikle Giriş Yapamaz)
-      const handleLoginSubmit = (e) => {
+      const dispatchVerificationEmail = async (targetEmail, targetName, code) => {
+        setSendingEmail(true);
+        const result = await sendRealVerificationEmail({
+          toEmail: targetEmail,
+          toName: targetName,
+          code,
+          emailJsConfig,
+        });
+        setSendingEmail(false);
+
+        if (result.sentReal) {
+          notify(`📧 6 haneli doğrulama kodu ${targetEmail} adresinize gönderildi! Lütfen gelen kutunuzu (veya Spam klasörünü) kontrol edin.`);
+        } else {
+          setErrorMsg(`⚠️ E-posta gönderilirken bir uyarı oluştu (${result.reason}). Lütfen EmailJS şablonunuzda 'To Email' alanında {{to_email}} yazdığından emin olun.`);
+        }
+      };
+
+      // 1. GİRİŞ YAP KONTROLÜ
+      const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg("");
         const cleanEmail = email.trim().toLowerCase();
@@ -354,24 +427,19 @@
         if (!foundUser.verified) {
           setPendingEmail(foundUser.email);
           setMode("verify");
-          setErrorMsg("⚠️ E-posta adresiniz henüz onaylanmamış! Lütfen e-postanıza gönderilen 6 haneli doğrulama kodunu girin.");
-          onShowEmailBanner({
-            email: foundUser.email,
-            name: foundUser.name,
-            code: foundUser.verificationCode,
-          });
+          setErrorMsg("⚠️ E-posta adresiniz henüz onaylanmamış! E-postanıza yeni bir doğrulama kodu gönderiliyor...");
+          await dispatchVerificationEmail(foundUser.email, foundUser.name, foundUser.verificationCode);
           return;
         }
 
-        // Giriş Başarılı!
         setUser(foundUser);
         try { localStorage.setItem("cozmetix_active_user", JSON.stringify(foundUser)); } catch {}
         notify(`✓ Hoş geldiniz, ${foundUser.name}! Giriş başarılı.`);
         onFinish("myskin");
       };
 
-      // 2. YENİ ÜYE KAYDI & 6 HANELİ DOĞRULAMA KODU GÖNDERİMİ
-      const handleRegisterSubmit = (e) => {
+      // 2. YENİ ÜYE KAYDI & GERÇEK E-POSTA GÖNDERİMİ
+      const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg("");
         const cleanEmail = email.trim().toLowerCase();
@@ -399,19 +467,13 @@
             setErrorMsg("⚠️ Bu e-posta adresi zaten kayıtlı ve doğrulanmış. Lütfen 'Giriş Yap' sekmesini kullanın.");
             return;
           } else {
-            // Daha önce kayıt olmuş ama kodunu girmemişse doğrulama ekranına yönlendir
             setPendingEmail(existing.email);
             setMode("verify");
-            onShowEmailBanner({
-              email: existing.email,
-              name: existing.name,
-              code: existing.verificationCode,
-            });
+            await dispatchVerificationEmail(existing.email, existing.name, existing.verificationCode);
             return;
           }
         }
 
-        // 6 Haneli Doğrulama Kodu Üret
         const generatedCode = String(Math.floor(100000 + Math.random() * 900000));
 
         const newUnverifiedAccount = {
@@ -434,16 +496,10 @@
         setPendingEmail(cleanEmail);
         setMode("verify");
 
-        // Kullanıcıya doğrulama kodunu içeren e-posta bildirimini gönder
-        onShowEmailBanner({
-          email: cleanEmail,
-          name: name.trim(),
-          code: generatedCode,
-        });
-        notify(`📧 ${cleanEmail} adresine 6 haneli doğrulama kodu gönderildi!`);
+        await dispatchVerificationEmail(cleanEmail, name.trim(), generatedCode);
       };
 
-      // 3. 6 HANELİ E-POSTA DOĞRULAMA KODUNU ONAYLAMA
+      // 3. 6 HANELİ KODU DOĞRULAMA
       const handleVerifyCode = (e) => {
         e.preventDefault();
         setErrorMsg("");
@@ -459,11 +515,10 @@
         }
 
         if (otpInput.trim() !== targetUser.verificationCode) {
-          setErrorMsg("❌ Girdiğiniz 6 haneli doğrulama kodu hatalı! Lütfen e-posta bildirimindeki kodu kontrol edin.");
+          setErrorMsg("❌ Girdiğiniz 6 haneli doğrulama kodu hatalı! Lütfen e-postanıza gelen kodu kontrol edin.");
           return;
         }
 
-        // Kod Doğru -> Hesabı 'verified: true' olarak işaretle ve cilt anketine (Step 1) geçir!
         const updatedList = registeredUsers.map((u) =>
           u.email.toLowerCase() === pendingEmail.toLowerCase()
             ? { ...u, verified: true }
@@ -473,11 +528,10 @@
         try { localStorage.setItem("cozmetix_registered_users", JSON.stringify(updatedList)); } catch {}
 
         notify("✓ E-posta adresiniz başarıyla doğrulandı! Şimdi cilt profilinizi tamamlayın.");
-        onShowEmailBanner(null);
         setStep(1);
       };
 
-      const resendCode = () => {
+      const resendCode = async () => {
         const newCode = String(Math.floor(100000 + Math.random() * 900000));
         const updatedList = registeredUsers.map((u) =>
           u.email.toLowerCase() === pendingEmail.toLowerCase()
@@ -488,15 +542,9 @@
         try { localStorage.setItem("cozmetix_registered_users", JSON.stringify(updatedList)); } catch {}
 
         const target = updatedList.find((u) => u.email.toLowerCase() === pendingEmail.toLowerCase());
-        onShowEmailBanner({
-          email: pendingEmail,
-          name: target?.name || "Üye",
-          code: newCode,
-        });
-        notify(`📧 Yeni doğrulama kodu (${newCode}) gönderildi.`);
+        await dispatchVerificationEmail(pendingEmail, target?.name || "Üye", newCode);
       };
 
-      // 4. ANKET BİTİŞİ VE OTURUM AÇMA
       const completeOnboarding = () => {
         const updatedList = registeredUsers.map((u) =>
           u.email.toLowerCase() === pendingEmail.toLowerCase()
@@ -516,17 +564,14 @@
         onFinish("analyze");
       };
 
-      // EĞER KULLANICI GİRİŞ YAPMIŞSA PROFİL KARTINI GÖSTER
       if (user) {
         return (
           <div className="max-w-lg mx-auto rounded-3xl p-8" style={{ background: C.card, border: `1px solid ${C.line}` }}>
             <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: `1px solid ${C.line}` }}>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: C.accent2 }}>
-                    ✓ E-POSTA DOĞRULANMIŞ ÜYE
-                  </span>
-                </div>
+                <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: C.accent2 }}>
+                  ✓ E-POSTA DOĞRULANMIŞ ÜYE
+                </span>
                 <h2 className="text-2xl font-serif font-bold mt-1">{user.name}</h2>
                 <div className="text-xs" style={{ color: C.muted }}>{user.email}</div>
               </div>
@@ -547,16 +592,6 @@
               <div className="flex justify-between p-3 rounded-xl" style={{ background: C.bg }}>
                 <span style={{ color: C.muted }}>Aylık Bakım Bütçesi:</span>
                 <strong>{user.budget || "₺500 – ₺1.000"}</strong>
-              </div>
-              <div className="p-3 rounded-xl" style={{ background: C.bg }}>
-                <div className="mb-1.5" style={{ color: C.muted }}>Cilt Odak Alanlarınız:</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {(user.concerns || ["Gözenek Görünümü"]).map((c) => (
-                    <span key={c} className="px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                      {c}
-                    </span>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -586,33 +621,9 @@
 
       return (
         <div className="max-w-lg mx-auto">
-          {step > 0 && (
-            <div className="flex gap-1.5 mb-5">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-1.5 flex-1 rounded-full transition-all"
-                  style={{ background: i <= step ? C.accent : C.line }}
-                />
-              ))}
-            </div>
-          )}
-
           <div className="rounded-3xl p-7 md:p-8 shadow-sm" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-            {/* Üst Sekme Seçici: Giriş Yap / Yeni Üye Ol */}
             {step === 0 && mode !== "verify" && (
               <div className="flex rounded-full p-1 mb-6" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                <button
-                  type="button"
-                  onClick={() => { setMode("login"); setErrorMsg(""); }}
-                  className="flex-1 py-2.5 rounded-full text-xs font-semibold transition"
-                  style={{
-                    background: mode === "login" ? C.ink : "transparent",
-                    color: mode === "login" ? "#FFFDF9" : C.muted,
-                  }}
-                >
-                  🔑 Giriş Yap
-                </button>
                 <button
                   type="button"
                   onClick={() => { setMode("register"); setErrorMsg(""); }}
@@ -624,10 +635,20 @@
                 >
                   ✨ Yeni Üye Ol
                 </button>
+                <button
+                  type="button"
+                  onClick={() => { setMode("login"); setErrorMsg(""); }}
+                  className="flex-1 py-2.5 rounded-full text-xs font-semibold transition"
+                  style={{
+                    background: mode === "login" ? C.ink : "transparent",
+                    color: mode === "login" ? "#FFFDF9" : C.muted,
+                  }}
+                >
+                  🔑 Giriş Yap
+                </button>
               </div>
             )}
 
-            {/* Hata veya Uyarı Kutusu */}
             {errorMsg && (
               <div
                 className="mb-5 p-3.5 rounded-2xl text-xs font-medium leading-relaxed"
@@ -637,7 +658,6 @@
               </div>
             )}
 
-            {/* EKRAN 1: GİRİŞ YAP (Sadece Kayıtlı ve E-postası Onaylanmış Üyeler Girebilir) */}
             {step === 0 && mode === "login" && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
@@ -654,7 +674,7 @@
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ornek@eposta.com"
+                    placeholder="ornek@gmail.com"
                     className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                     style={{ background: C.bg, border: `1px solid ${C.line}` }}
                   />
@@ -680,27 +700,15 @@
                 >
                   Giriş Yap
                 </button>
-
-                <div className="text-center pt-2">
-                  <button
-                    type="button"
-                    onClick={() => { setMode("register"); setErrorMsg(""); }}
-                    className="text-xs underline font-medium"
-                    style={{ color: C.accent }}
-                  >
-                    Henüz hesabınız yok mu? Yeni Üye Olun →
-                  </button>
-                </div>
               </form>
             )}
 
-            {/* EKRAN 2: YENİ ÜYE OL FORMU */}
             {step === 0 && mode === "register" && (
               <form onSubmit={handleRegisterSubmit} className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-serif font-bold">Yeni Üyelik Oluşturun</h2>
                   <p className="text-xs mt-1" style={{ color: C.muted }}>
-                    Kayıt sonrası e-posta adresinize 6 haneli bir onay kodu gönderilecektir.
+                    Kayıt sonrası e-posta adresinize 6 haneli bir doğrulama kodu gönderilecektir.
                   </p>
                 </div>
 
@@ -718,13 +726,13 @@
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium block mb-1">E-posta Adresiniz *</label>
+                  <label className="text-xs font-medium block mb-1">E-posta Adresiniz (Kod bu adrese gönderilir) *</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ornek@eposta.com"
+                    placeholder="ornek@gmail.com"
                     className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                     style={{ background: C.bg, border: `1px solid ${C.line}` }}
                   />
@@ -758,15 +766,15 @@
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-full text-sm font-semibold transition hover:opacity-90"
+                  disabled={sendingEmail}
+                  className="w-full py-3.5 rounded-full text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
                   style={{ background: C.accent, color: "#FFF" }}
                 >
-                  Doğrulama Kodu Gönder (E-posta Onayı) →
+                  {sendingEmail ? "E-posta Gönderiliyor…" : "Doğrulama Kodu Gönder (E-posta Onayı) →"}
                 </button>
               </form>
             )}
 
-            {/* EKRAN 3: 6 HANELİ E-POSTA DOĞRULAMA KODU (OTP) EKRANI */}
             {step === 0 && mode === "verify" && (
               <form onSubmit={handleVerifyCode} className="space-y-4 text-center">
                 <div className="w-14 h-14 mx-auto rounded-full flex items-center justify-center text-2xl" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
@@ -778,7 +786,7 @@
                   </div>
                   <h2 className="text-2xl font-serif font-bold mt-1">E-postanızı Doğrulayın</h2>
                   <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
-                    <strong style={{ color: C.ink }}>{pendingEmail}</strong> adresine gönderilen 6 haneli doğrulama kodunu aşağıya girin. Onaylanmayan hesaplarla giriş yapılamaz.
+                    <strong style={{ color: C.ink }}>{pendingEmail}</strong> adresine gönderilen 6 haneli doğrulama kodunu aşağıya girin.
                   </p>
                 </div>
 
@@ -807,6 +815,7 @@
                   <button
                     type="button"
                     onClick={resendCode}
+                    disabled={sendingEmail}
                     className="underline font-medium"
                     style={{ color: C.accent }}
                   >
@@ -824,15 +833,11 @@
               </form>
             )}
 
-            {/* ADIM 1: YAŞ ARALIĞI (E-posta Doğrulandıktan Sonra Açılır) */}
             {step === 1 && (
               <div>
                 <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent2 }}>✓ E-POSTA ONAYLANDI · ADIM 1 / 3</div>
                 <h2 className="text-2xl font-serif font-bold mb-1">Yaş aralığınız nedir?</h2>
-                <p className="text-xs mb-5" style={{ color: C.muted }}>
-                  Cilt döngüsü hızınızı tahmin etmek için yaş aralığınızı seçin.
-                </p>
-                <div className="grid grid-cols-3 gap-2.5 mb-6">
+                <div className="grid grid-cols-3 gap-2.5 my-5">
                   {["18–24", "25–34", "35–44", "45–54", "55–64", "65+"].map((a) => (
                     <button
                       key={a}
@@ -854,12 +859,10 @@
               </div>
             )}
 
-            {/* ADIM 2: CİLT ENDİŞELERİ */}
             {step === 2 && (
               <div>
                 <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent }}>ADIM 2 / 3 · ODAK ALANLARI</div>
-                <h2 className="text-2xl font-serif font-bold mb-1">Cildinizde neyi iyileştirmek istersiniz?</h2>
-                <p className="text-xs mb-5" style={{ color: C.muted }}>Size uygun olanların tamamını seçebilirsiniz.</p>
+                <h2 className="text-2xl font-serif font-bold mb-4">Cildinizde neyi iyileştirmek istersiniz?</h2>
                 <div className="flex flex-wrap gap-2 mb-6">
                   {[
                     "Gözenek Görünümü",
@@ -886,14 +889,12 @@
                     );
                   })}
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setStep(1)} className="px-5 py-3 rounded-full text-xs" style={{ border: `1px solid ${C.line}` }}>Geri</button>
-                  <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-full text-xs font-semibold" style={{ background: C.ink, color: "#FFFDF9" }}>Devam Et →</button>
-                </div>
+                <button onClick={() => setStep(3)} className="w-full py-3 rounded-full text-xs font-semibold" style={{ background: C.ink, color: "#FFFDF9" }}>
+                  Devam Et →
+                </button>
               </div>
             )}
 
-            {/* ADIM 3: BÜTÇE VE TAMAMLAMA */}
             {step === 3 && (
               <div>
                 <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent }}>ADIM 3 / 3 · SON ADIM</div>
@@ -1009,12 +1010,21 @@
       const [page, setPage] = useState("home");
       const [detail, setDetail] = useState(null);
       const [toast, setToast] = useState(null);
-      const [isPremium, setIsPremium] = useState(false);
 
-      // E-posta Doğrulama Bildirim Kutusu (Simüle Gelen Kutusu)
-      const [emailBanner, setEmailBanner] = useState(null);
+      // Gömülü EmailJS Yapılandırması
+      const [emailJsConfig, setEmailJsConfig] = useState(() => {
+        try {
+          const saved = JSON.parse(localStorage.getItem("cozmetix_emailjs_config_v2") || "{}");
+          return {
+            serviceId: saved.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId,
+            templateId: saved.templateId || DEFAULT_EMAILJS_CONFIG.templateId,
+            publicKey: saved.publicKey || DEFAULT_EMAILJS_CONFIG.publicKey,
+          };
+        } catch {
+          return DEFAULT_EMAILJS_CONFIG;
+        }
+      });
 
-      // Kayıtlı Üyeler Veritabanı (Tarayıcıda Kalıcı)
       const [registeredUsers, setRegisteredUsers] = useState(() => {
         try {
           const saved = localStorage.getItem("cozmetix_registered_users");
@@ -1023,7 +1033,6 @@
         return [];
       });
 
-      // Aktif Oturum Açmış Kullanıcı
       const [user, setUser] = useState(() => {
         try {
           const saved = localStorage.getItem("cozmetix_active_user");
@@ -1034,24 +1043,11 @@
 
       const [products] = useState(REAL_DERMO_CATALOG);
       const [affiliateClicks, setAffiliateClicks] = useState(INITIAL_AFFILIATE_CLICKS);
-      const [sliderPos, setSliderPos] = useState(50);
-      const [inciInput, setInciInput] = useState("Aqua, Glycerin, Panthenol, Madecassoside, Ceramide NP, Niacinamide");
-      const [inciScore, setInciScore] = useState(95);
-      const [compA, setCompA] = useState(105);
-      const [compB, setCompB] = useState(106);
       const [completedSteps, setCompletedSteps] = useState(["Temizleyici (Cleanser)", "Güneş Kremi (SPF 50+)"]);
-
-      const [chatMsgs, setChatMsgs] = useState([
-        {
-          role: "ai",
-          text: "Merhaba! Ben Cozmetix AI Güzellik Danışmanınız. Karma cilt profiliniz ve dermokozmetik kataloğunuz yüklendi. Rutininiz veya ürün seçimi hakkında sorunuzu yazabilirsiniz.",
-        },
-      ]);
-      const [chatInput, setChatInput] = useState("");
 
       const notify = (msg) => {
         setToast(msg);
-        setTimeout(() => setToast(null), 3600);
+        setTimeout(() => setToast(null), 4200);
       };
 
       const handleMerchantClick = (product, merchantKey) => {
@@ -1082,14 +1078,9 @@
         { key: "analyze", label: "📷 Analiz" },
         { key: "results", label: "Profil" },
         { key: "myskin", label: "Cildim" },
-        { key: "products", label: "🛍️ Ürünler & INCI" },
-        { key: "chat", label: "Danışman" },
-        { key: "report", label: "Rapor (PDF)" },
+        { key: "products", label: "🛍️ Ürünler" },
         { key: "admin", label: "🔒 Yönetim" },
       ];
-
-      const isConflict = (compA === 106 && compB === 101) || (compA === 101 && compB === 106);
-      const totalCommission = affiliateClicks.reduce((acc, c) => acc + c.commission, 0);
 
       return (
         <div className="min-h-screen flex flex-col">
@@ -1099,44 +1090,17 @@
             </div>
           )}
 
-          {/* E-POSTA GELEN KUTUSU BİLDİRİMİ (6 HANELİ DOĞRULAMA KODU GÖSTERİMİ) */}
-          {emailBanner && (
-            <div
-              className="fixed bottom-4 right-4 left-4 md:left-auto md:w-96 z-50 rounded-3xl p-5 shadow-2xl"
-              style={{ background: C.ink, color: "#FFFDF9", border: `2px solid ${C.gold}` }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: C.gold }}>
-                  📧 YENİ E-POSTA · COZMETIX GÜVENLİK
-                </span>
-                <button onClick={() => setEmailBanner(null)} className="text-xs opacity-70">✕</button>
-              </div>
-              <div className="text-xs mb-1" style={{ color: "#C9C2B8" }}>
-                Alıcı: <strong className="text-white">{emailBanner.email}</strong>
-              </div>
-              <p className="text-xs leading-relaxed mb-3" style={{ color: "#EDE7DF" }}>
-                Merhaba {emailBanner.name}, Cozmetix üyeliğinizi aktifleştirmek için 6 haneli doğrulama kodunuz:
-              </p>
-              <div
-                className="py-2.5 px-4 rounded-xl text-center text-xl font-mono font-bold tracking-[0.4em] mb-2"
-                style={{ background: "rgba(255,255,255,0.12)", color: C.gold }}
-              >
-                {emailBanner.code}
-              </div>
-              <div className="text-[10px] text-center" style={{ color: "#C9C2B8" }}>
-                Yukarıdaki 6 haneli kodu doğrulama kutusuna girin.
-              </div>
-            </div>
-          )}
-
           {/* Üst Başlık */}
           <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4" style={{ borderBottom: `1px solid ${C.line}` }}>
             <div className="flex items-center gap-2.5">
               <button onClick={() => setPage("home")} className="font-serif text-xl font-bold tracking-widest">
                 {BRAND.name}
               </button>
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: isPremium ? C.gold : C.line, color: isPremium ? "#fff" : C.ink }}>
-                {isPremium ? "COZMETIX+" : "FREE"}
+              <span
+                className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold"
+                style={{ background: C.accent2, color: "#fff" }}
+              >
+                ✓ E-posta Doğrulama Aktif
               </span>
             </div>
 
@@ -1144,10 +1108,10 @@
               {user ? (
                 <button
                   onClick={() => setPage("auth")}
-                  className="px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5"
+                  className="px-4 py-1.5 rounded-full text-xs font-semibold"
                   style={{ background: C.accent2, color: "#FFF" }}
                 >
-                  <span>✓ {user.name}</span>
+                  ✓ {user.name}
                 </button>
               ) : (
                 <button
@@ -1178,12 +1142,11 @@
           {/* Ana İçerik */}
           <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-6">
 
-            {/* ANA SAYFA */}
             {page === "home" && (
               <div>
                 <div className="rounded-3xl p-8 md:p-12 mb-8" style={{ background: C.ink, color: "#FFFDF9" }}>
                   <div className="text-xs uppercase tracking-widest mb-2" style={{ color: C.gold }}>
-                    {user ? `Hoş Geldiniz, ${user.name} (Onaylı Üye)` : "AI Destekli Kişiselleştirilmiş Dermokozmetik"}
+                    {user ? `Hoş Geldiniz, ${user.name}` : "AI Destekli Kişiselleştirilmiş Dermokozmetik"}
                   </div>
                   <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight mb-4">
                     Cildiniz. Çözümlendi.
@@ -1206,12 +1169,6 @@
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-serif font-bold">Cildinize Özel Önerilen Ürünler</h2>
-                  <button onClick={() => setPage("products")} className="text-xs underline font-semibold" style={{ color: C.accent }}>
-                    Tümünü Gör →
-                  </button>
-                </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {products.slice(0, 3).map((p) => (
                     <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
@@ -1220,26 +1177,21 @@
               </div>
             )}
 
-            {/* DOĞRULAMALI ÜYE OL & GİRİŞ YAP EKRANI */}
             {page === "auth" && (
               <AuthAndOnboarding
                 user={user}
                 setUser={setUser}
                 registeredUsers={registeredUsers}
                 setRegisteredUsers={setRegisteredUsers}
+                emailJsConfig={emailJsConfig}
                 onFinish={(targetPage) => setPage(targetPage)}
                 notify={notify}
-                onShowEmailBanner={(info) => setEmailBanner(info)}
               />
             )}
 
-            {/* ANALİZ */}
             {page === "analyze" && (
               <div className="max-w-lg mx-auto rounded-3xl p-8 text-center" style={{ background: C.card, border: `1px solid ${C.line}` }}>
                 <h2 className="text-2xl font-serif font-bold mb-2">Canlı Kamera & Işık Kontrolü</h2>
-                <p className="text-xs mb-6" style={{ color: C.muted }}>
-                  Yüzünüzü çerçeveye hizalayın veya hızlı demoyu başlatın
-                </p>
                 <LiveCameraCapture
                   onCapture={() => {
                     notify("✓ Cilt analizi tamamlandı!");
@@ -1249,274 +1201,87 @@
               </div>
             )}
 
-            {/* PROFİL SONUÇLARI */}
             {page === "results" && (
               <div className="max-w-4xl mx-auto">
-                <h2 className="text-3xl font-serif font-bold text-center mb-6">
-                  {user ? `${user.name} — Karma Cilt Profili` : "Karma (Combination) Cilt Profiliniz"}
-                </h2>
+                <h2 className="text-3xl font-serif font-bold text-center mb-6">Karma (Combination) Cilt Profiliniz</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
                   {INITIAL_SKIN_METRICS.map((m) => (
                     <Metric key={m.key} label={m.key} value={m.value} focus={m.focus} />
                   ))}
                 </div>
-                <div className="grid sm:grid-cols-3 gap-4">
-                  {products.slice(0, 3).map((p) => (
-                    <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
-                  ))}
+              </div>
+            )}
+
+            {page === "myskin" && (
+              <div className="max-w-3xl mx-auto rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                <h3 className="text-xl font-serif font-bold mb-4">Günlük Rutin & Seri Takipçisi</h3>
+                <div className="space-y-2">
+                  {INITIAL_ROUTINE.Morning.map((s, idx) => {
+                    const done = completedSteps.includes(s.step);
+                    return (
+                      <div
+                        key={s.step}
+                        onClick={() =>
+                          setCompletedSteps((prev) =>
+                            prev.includes(s.step) ? prev.filter((x) => x !== s.step) : [...prev, s.step]
+                          )
+                        }
+                        className="cursor-pointer flex items-center gap-3 p-3 rounded-xl"
+                        style={{ background: done ? "#EBF2E5" : C.bg, border: `1px solid ${C.line}` }}
+                      >
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: done ? C.accent2 : C.card, color: done ? "#fff" : C.ink }}>
+                          {done ? "✓" : idx + 1}
+                        </span>
+                        <div className="text-xs">
+                          <div className="font-bold">{s.step}</div>
+                          <div style={{ color: C.muted }}>{s.note}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* CİLDİM */}
-            {page === "myskin" && (
+            {page === "products" && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {products.map((p) => (
+                  <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
+                ))}
+              </div>
+            )}
+
+            {page === "admin" && (
               <div className="max-w-3xl mx-auto space-y-6">
                 <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-serif font-bold">Günlük Rutin & Seri Takipçisi</h3>
-                    <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: C.ink, color: "#FFFDF9" }}>
-                      ★ {completedSteps.length} Adım Tamamlandı
-                    </span>
+                  <div className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: C.accent2 }}>
+                    ✓ EMAILJS BAĞLANTISI AKTİF
                   </div>
-                  <div className="space-y-2">
-                    {INITIAL_ROUTINE.Morning.map((s, idx) => {
-                      const done = completedSteps.includes(s.step);
-                      return (
-                        <div
-                          key={s.step}
-                          onClick={() =>
-                            setCompletedSteps((prev) =>
-                              prev.includes(s.step) ? prev.filter((x) => x !== s.step) : [...prev, s.step]
-                            )
-                          }
-                          className="cursor-pointer flex items-center gap-3 p-3 rounded-xl"
-                          style={{ background: done ? "#EBF2E5" : C.bg, border: `1px solid ${C.line}` }}
-                        >
-                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: done ? C.accent2 : C.card, color: done ? "#fff" : C.ink }}>
-                            {done ? "✓" : idx + 1}
-                          </span>
-                          <div className="text-xs">
-                            <div className="font-bold">{s.step}</div>
-                            <div style={{ color: C.muted }}>{s.note}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h3 className="text-xl font-serif font-bold mb-3">1. Gün vs 90. Gün Öncesi/Sonrası Kıyaslama</h3>
-                  <input
-                    type="range"
-                    min="10"
-                    max="90"
-                    value={sliderPos}
-                    onChange={(e) => setSliderPos(Number(e.target.value))}
-                    className="w-full mb-2"
-                  />
-                  <div className="flex justify-between text-xs" style={{ color: C.muted }}>
-                    <span>1. Gün (Ton Eşitsizliği: 51)</span>
-                    <span>Kaydırıcı: %{sliderPos}</span>
-                    <span style={{ color: C.accent2 }}>90. Gün (Ton Eşitsizliği: 33)</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ÜRÜNLER VE INCI TARAYICI */}
-            {page === "products" && (
-              <div className="space-y-6">
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h3 className="text-xl font-serif font-bold mb-2">Ürün Arkası İçindekiler (INCI) Tarayıcı</h3>
-                  <div className="flex flex-col sm:flex-row gap-2 mb-3">
-                    <input
-                      value={inciInput}
-                      onChange={(e) => setInciInput(e.target.value)}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-xs"
-                      style={{ background: C.bg, border: `1px solid ${C.line}` }}
-                    />
-                    <button
-                      onClick={() => {
-                        const hasBad = inciInput.toLowerCase().includes("alcohol") || inciInput.toLowerCase().includes("parfum");
-                        setInciScore(hasBad ? 58 : 95);
-                        notify("INCI analizi güncellendi!");
-                      }}
-                      className="px-5 py-2.5 rounded-full text-xs font-semibold"
-                      style={{ background: C.ink, color: "#FFFDF9" }}
-                    >
-                      INCI Analiz Et
-                    </button>
-                  </div>
-                  <div className="text-xs font-semibold" style={{ color: inciScore >= 80 ? C.accent2 : C.accent }}>
-                    Cozmetix Match Score: %{inciScore}
-                  </div>
-                </div>
-
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h3 className="text-xl font-serif font-bold mb-3">İçerik Çakışma Denetleyicisi</h3>
-                  <div className="grid sm:grid-cols-2 gap-3 mb-3">
-                    <select value={compA} onChange={(e) => setCompA(Number(e.target.value))} className="p-2.5 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                      {products.map((p) => <option key={p.id} value={p.id}>{p.brand} — {p.name}</option>)}
-                    </select>
-                    <select value={compB} onChange={(e) => setCompB(Number(e.target.value))} className="p-2.5 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                      {products.map((p) => <option key={p.id} value={p.id}>{p.brand} — {p.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="p-3.5 rounded-xl text-xs" style={{ background: C.bg }}>
-                    <strong style={{ color: isConflict ? C.accent : C.accent2 }}>
-                      {isConflict ? "✕ Çakışma Uyarısı: " : "✓ Güvenli Sinerji: "}
-                    </strong>
-                    {isConflict
-                      ? "Aynı akşam üst üste uygulamayın; farklı gecelerde dönüşümlü kullanın."
-                      : "Aynı rutinde güvenle birlikte uygulanabilir."}
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {products.map((p) => (
-                    <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* DANIŞMAN */}
-            {page === "chat" && (
-              <div className="max-w-2xl mx-auto">
-                <h2 className="text-2xl font-serif font-bold mb-3">AI Güzellik Danışmanı</h2>
-                <div className="rounded-3xl p-4 h-80 overflow-y-auto mb-3" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  {chatMsgs.map((m, i) => (
-                    <div key={i} className={"flex mb-3 " + (m.role === "user" ? "justify-end" : "justify-start")}>
-                      <div className="max-w-md rounded-2xl px-4 py-2.5 text-xs leading-relaxed" style={{ background: m.role === "user" ? C.ink : C.bg, color: m.role === "user" ? "#FFFDF9" : C.ink }}>
-                        {m.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Sorunuzu yazın..."
-                    className="flex-1 px-4 py-3 rounded-full text-xs outline-none"
-                    style={{ background: C.card, border: `1px solid ${C.line}` }}
-                  />
-                  <button
-                    onClick={() => {
-                      if (!chatInput.trim()) return;
-                      const q = chatInput;
-                      setChatInput("");
-                      setChatMsgs((prev) => [
-                        ...prev,
-                        { role: "user", text: q },
-                        { role: "ai", text: "Karma cilt profiliniz için sabah Anthelios SPF 50+, akşam The Ordinary Niacinamide %10 ve Cicaplast B5+ kombinasyonunu öneririm." },
-                      ]);
-                    }}
-                    className="px-6 rounded-full text-xs font-semibold"
-                    style={{ background: C.ink, color: "#FFFDF9" }}
-                  >
-                    Gönder
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* RAPOR */}
-            {page === "report" && (
-              <div className="max-w-xl mx-auto rounded-2xl p-8 shadow-lg" style={{ background: "#FFF", border: `1px solid ${C.line}` }}>
-                <div className="flex justify-between items-center pb-4 mb-6" style={{ borderBottom: `2px solid ${C.ink}` }}>
-                  <div>
-                    <div className="text-lg font-serif font-bold tracking-widest">COZMETIX</div>
-                    <div className="text-xs" style={{ color: C.muted }}>Aylık AI Cilt Raporu {user ? `· ${user.name}` : ""}</div>
-                  </div>
-                  <button onClick={() => window.print()} className="px-4 py-2 rounded-full text-xs font-semibold" style={{ background: C.ink, color: "#FFFDF9" }}>
-                    ⤓ PDF İndir
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {INITIAL_SKIN_METRICS.map((m) => (
-                    <div key={m.key} className="p-3 rounded-xl text-center" style={{ background: C.bg }}>
-                      <div className="text-xs" style={{ color: C.muted }}>{m.key}</div>
-                      <div className="text-lg font-serif font-bold">{m.value}/100</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ADMIN: KAYITLI ÜYELER & AFFILIATE TAKİBİ */}
-            {page === "admin" && (
-              <div className="max-w-4xl mx-auto space-y-6">
-                {/* Kayıtlı Üyeler ve Doğrulama Durumu */}
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h2 className="text-2xl font-serif font-bold mb-1">Kayıtlı Üyeler & E-posta Doğrulama Durumu</h2>
-                  <p className="text-xs mb-4" style={{ color: C.muted }}>
-                    Sitenize kayıt olan kullanıcılar ve e-posta onay durumları:
-                  </p>
+                  <h3 className="text-xl font-serif font-bold mb-2">Kayıtlı Üyeler ({registeredUsers.length})</h3>
                   {registeredUsers.length === 0 ? (
-                    <div className="p-4 rounded-xl text-xs" style={{ background: C.bg, color: C.muted }}>
-                      Henüz kayıtlı üye yok. '👤 Üye Ol / Giriş Yap' sekmesinden ilk üyeliği oluşturup doğrulama kodunu test edebilirsiniz.
-                    </div>
+                    <p className="text-xs" style={{ color: C.muted }}>Henüz kayıtlı üye yok.</p>
                   ) : (
-                    <div className="space-y-2">
-                      {registeredUsers.map((u) => (
-                        <div key={u.id} className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                          <div>
-                            <strong>{u.name}</strong> ({u.email})
-                            <span className="ml-2 text-[11px]" style={{ color: C.muted }}>Bütçe: {u.budget}</span>
-                          </div>
-                          <div>
-                            {u.verified ? (
-                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white" style={{ background: C.accent2 }}>
-                                ✓ E-posta Doğrulandı
-                              </span>
-                            ) : (
-                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white" style={{ background: C.accent }}>
-                                ⏳ Onay Bekliyor (Kod: {u.verificationCode})
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    registeredUsers.map((u) => (
+                      <div key={u.id} className="flex justify-between items-center text-xs p-3 mb-2 rounded-xl" style={{ background: C.bg }}>
+                        <span><strong>{u.name}</strong> ({u.email})</span>
+                        <span
+                          className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white"
+                          style={{ background: u.verified ? C.accent2 : C.accent }}
+                        >
+                          {u.verified ? "✓ Doğrulandı" : "⏳ Onay Bekliyor"}
+                        </span>
+                      </div>
+                    ))
                   )}
                 </div>
-
-                {/* Affiliate Komisyon Özeti */}
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h2 className="text-2xl font-serif font-bold mb-4">Affiliate Komisyon Takibi</h2>
-                  <div className="rounded-2xl p-4 mb-4 flex justify-between items-center" style={{ background: C.ink, color: "#FFFDF9" }}>
-                    <span>Toplam Tahmini Komisyon:</span>
-                    <strong className="text-xl font-serif" style={{ color: "#A8E6CF" }}>₺{totalCommission}</strong>
-                  </div>
-                  <div className="space-y-2">
-                    {affiliateClicks.map((c) => (
-                      <div key={c.id} className="flex justify-between text-xs p-3 rounded-xl" style={{ background: C.bg }}>
-                        <span><strong>{c.merchant}</strong> · {c.brand} — {c.name}</span>
-                        <strong style={{ color: C.accent2 }}>+₺{c.commission}</strong>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
-            {/* ÜRÜN DETAY MODALI */}
             {detail && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(28,26,23,0.6)" }} onClick={() => setDetail(null)}>
                 <div onClick={(e) => e.stopPropagation()} className="max-w-md w-full rounded-3xl p-6" style={{ background: C.card }}>
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-widest" style={{ color: C.muted }}>{detail.brand}</div>
-                      <h3 className="text-lg font-serif font-bold">{detail.name}</h3>
-                    </div>
-                    <Score score={detail.score} />
-                  </div>
-                  <div className="mb-4">
-                    {(detail.why || []).map((w) => <div key={w} className="text-xs mb-1">✓ {w}</div>)}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 mb-4">
+                  <h3 className="text-lg font-serif font-bold mb-2">{detail.brand} — {detail.name}</h3>
+                  <div className="grid grid-cols-3 gap-2 my-4">
                     {Object.values(MERCHANTS).map((m) => (
                       <button
                         key={m.id}
