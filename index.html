@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>COZMETIX — Cildiniz. Çözümlendi. | AI Dermokozmetik Platformu</title>
-  <meta name="description" content="AI destekli cilt analizi, gerçek e-posta doğrulamalı üyelik, INCI OCR etiket tarayıcı ve Trendyol/Sephora/Amazon mağaza karşılaştırması." />
+  <meta name="description" content="AI destekli cilt analizi, gerçek e-posta doğrulamalı üyelik, şifre sıfırlama, INCI OCR etiket tarayıcı ve Trendyol/Sephora/Amazon mağaza karşılaştırması." />
   <meta name="theme-color" content="#1C1A17" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -215,13 +215,14 @@
     };
 
     // ============================================================
-    // GERÇEK EMAILJS GÖNDERİM FONKSİYONU
+    // GERÇEK EMAILJS GÖNDERİM FONKSİYONU (ÜYELİK ONAYI + ŞİFRE SIFIRLAMA)
     // ============================================================
-    async function sendRealVerificationEmail({ toEmail, toName, code }) {
+    async function sendRealVerificationEmail({ toEmail, toName, code, purpose = "register" }) {
       const service_id = DEFAULT_EMAILJS_CONFIG.serviceId.trim();
       const template_id = DEFAULT_EMAILJS_CONFIG.templateId.trim();
       const user_id = DEFAULT_EMAILJS_CONFIG.publicKey.trim();
 
+      const isReset = purpose === "reset";
       const templateParams = {
         to_email: toEmail,
         email: toEmail,
@@ -230,8 +231,10 @@
         name: toName,
         verification_code: code,
         code: code,
-        title: `Doğrulama Kodunuz: ${code}`,
-        message: `COZMETIX hesabınızı aktifleştirmek için 6 haneli doğrulama kodunuz: ${code}`,
+        title: isReset ? `Şifre Sıfırlama Kodunuz: ${code}` : `Üyelik Doğrulama Kodunuz: ${code}`,
+        message: isReset
+          ? `COZMETIX hesap şifrenizi sıfırlamak için 6 haneli güvenlik kodunuz: ${code}`
+          : `COZMETIX hesabınızı aktifleştirmek için 6 haneli doğrulama kodunuz: ${code}`,
       };
 
       try {
@@ -356,7 +359,7 @@
     }
 
     // ============================================================
-    // DOĞRULAMALI ÜYELİK & GERÇEK EMAILJS E-POSTA ONAY MODÜLÜ
+    // DOĞRULAMALI ÜYELİK, GİRİŞ YAP VE ŞİFREMİ UNUTTUM MODÜLÜ
     // ============================================================
     function AuthAndOnboarding({
       user,
@@ -366,9 +369,11 @@
       onFinish,
       notify,
     }) {
-      const [mode, setMode] = useState("register"); // "login" | "register" | "verify"
+      // mode: "register" | "login" | "verify" | "forgot" | "reset"
+      const [mode, setMode] = useState("login");
       const [step, setStep] = useState(0);
       const [errorMsg, setErrorMsg] = useState("");
+      const [successMsg, setSuccessMsg] = useState("");
       const [sendingEmail, setSendingEmail] = useState(false);
 
       const [name, setName] = useState("");
@@ -376,8 +381,12 @@
       const [password, setPassword] = useState("");
       const [kvkkAccepted, setKvkkAccepted] = useState(true);
 
+      // E-posta Onay & Şifre Sıfırlama State'leri
       const [pendingEmail, setPendingEmail] = useState("");
       const [otpInput, setOtpInput] = useState("");
+      const [resetOtpInput, setResetOtpInput] = useState("");
+      const [newPassword, setNewPassword] = useState("");
+      const [confirmPassword, setConfirmPassword] = useState("");
 
       const [ageRange, setAgeRange] = useState("25–34");
       const [concerns, setConcerns] = useState(["Gözenek Görünümü", "Ton Eşitsizliği & Leke"]);
@@ -388,25 +397,36 @@
         else setList([...list, val]);
       };
 
-      const dispatchVerificationEmail = async (targetEmail, targetName, code) => {
+      const dispatchEmailCode = async (targetEmail, targetName, code, purpose = "register") => {
         setSendingEmail(true);
         const result = await sendRealVerificationEmail({
           toEmail: targetEmail,
           toName: targetName,
           code,
+          purpose,
         });
         setSendingEmail(false);
 
         if (result.sentReal) {
-          notify(`📧 6 haneli doğrulama kodu ${targetEmail} adresinize gönderildi! Lütfen gelen kutunuzu (veya Spam klasörünü) kontrol edin.`);
+          notify(
+            purpose === "reset"
+              ? `🔑 6 haneli şifre sıfırlama kodu ${targetEmail} adresinize gönderildi!`
+              : `📧 6 haneli doğrulama kodu ${targetEmail} adresinize gönderildi!`
+          );
+          return true;
         } else {
-          setErrorMsg(`⚠️ E-posta gönderilirken bir uyarı oluştu (${result.reason}). Lütfen EmailJS şablonunuzda 'To Email' alanında {{to_email}} yazdığından emin olun.`);
+          setErrorMsg(
+            `⚠️ E-posta gönderilirken bir uyarı oluştu (${result.reason}). Lütfen EmailJS şablonunuzda 'To Email' alanında {{to_email}} yazdığından emin olun.`
+          );
+          return false;
         }
       };
 
+      // 1. GİRİŞ YAP KONTROLÜ
       const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg("");
+        setSuccessMsg("");
         const cleanEmail = email.trim().toLowerCase();
 
         const foundUser = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
@@ -417,7 +437,7 @@
         }
 
         if (foundUser.password !== password) {
-          setErrorMsg("❌ Girdiğiniz şifre hatalı! Lütfen şifrenizi kontrol edip tekrar deneyin.");
+          setErrorMsg("❌ Girdiğiniz şifre hatalı! Şifrenizi hatırlamıyorsanız alttaki 'Şifremi Unuttum?' bağlantısına tıklayın.");
           return;
         }
 
@@ -425,7 +445,7 @@
           setPendingEmail(foundUser.email);
           setMode("verify");
           setErrorMsg("⚠️ E-posta adresiniz henüz onaylanmamış! E-postanıza yeni bir doğrulama kodu gönderiliyor...");
-          await dispatchVerificationEmail(foundUser.email, foundUser.name, foundUser.verificationCode);
+          await dispatchEmailCode(foundUser.email, foundUser.name, foundUser.verificationCode, "register");
           return;
         }
 
@@ -435,9 +455,11 @@
         onFinish("myskin");
       };
 
+      // 2. YENİ ÜYE KAYDI
       const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg("");
+        setSuccessMsg("");
         const cleanEmail = email.trim().toLowerCase();
 
         if (!name.trim()) {
@@ -460,12 +482,12 @@
         const existing = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
         if (existing) {
           if (existing.verified) {
-            setErrorMsg("⚠️ Bu e-posta adresi zaten kayıtlı ve doğrulanmış. Lütfen 'Giriş Yap' sekmesini kullanın.");
+            setErrorMsg("⚠️ Bu e-posta adresi zaten kayıtlı ve doğrulanmış. Lütfen 'Giriş Yap' sekmesini veya 'Şifremi Unuttum' seçeneğini kullanın.");
             return;
           } else {
             setPendingEmail(existing.email);
             setMode("verify");
-            await dispatchVerificationEmail(existing.email, existing.name, existing.verificationCode);
+            await dispatchEmailCode(existing.email, existing.name, existing.verificationCode, "register");
             return;
           }
         }
@@ -479,6 +501,7 @@
           password: password,
           verified: false,
           verificationCode: generatedCode,
+          resetCode: "",
           ageRange: "25–34",
           concerns: ["Gözenek Görünümü"],
           budget: "₺500 – ₺1.000",
@@ -492,9 +515,10 @@
         setPendingEmail(cleanEmail);
         setMode("verify");
 
-        await dispatchVerificationEmail(cleanEmail, name.trim(), generatedCode);
+        await dispatchEmailCode(cleanEmail, name.trim(), generatedCode, "register");
       };
 
+      // 3. ÜYELİK 6 HANELİ KOD DOĞRULAMA
       const handleVerifyCode = (e) => {
         e.preventDefault();
         setErrorMsg("");
@@ -526,18 +550,96 @@
         setStep(1);
       };
 
-      const resendCode = async () => {
+      // 4. ŞİFREMİ UNUTTUM — SIFIRLAMA KODU İSTEME
+      const handleForgotRequest = async (e) => {
+        e.preventDefault();
+        setErrorMsg("");
+        setSuccessMsg("");
+        const cleanEmail = email.trim().toLowerCase();
+
+        const targetUser = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+        if (!targetUser) {
+          setErrorMsg("❌ Bu e-posta adresiyle kayıtlı bir üye bulunamadı! Lütfen e-posta adresinizi kontrol edin veya yeni üyelik oluşturun.");
+          return;
+        }
+
+        const resetCode = String(Math.floor(100000 + Math.random() * 900000));
+        const updatedList = registeredUsers.map((u) =>
+          u.email.toLowerCase() === cleanEmail ? { ...u, resetCode } : u
+        );
+        setRegisteredUsers(updatedList);
+        try { localStorage.setItem("cozmetix_registered_users", JSON.stringify(updatedList)); } catch {}
+
+        setPendingEmail(cleanEmail);
+        setResetOtpInput("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setMode("reset");
+
+        await dispatchEmailCode(cleanEmail, targetUser.name, resetCode, "reset");
+      };
+
+      // 5. ŞİFRE SIFIRLAMA — KODU DOĞRULAYIP YENİ ŞİFREYİ KAYDETME
+      const handleResetPasswordSubmit = (e) => {
+        e.preventDefault();
+        setErrorMsg("");
+        setSuccessMsg("");
+
+        const targetUser = registeredUsers.find(
+          (u) => u.email.toLowerCase() === pendingEmail.toLowerCase()
+        );
+
+        if (!targetUser) {
+          setErrorMsg("Kullanıcı bulunamadı. Lütfen tekrar deneyin.");
+          setMode("forgot");
+          return;
+        }
+
+        if (!targetUser.resetCode || resetOtpInput.trim() !== targetUser.resetCode) {
+          setErrorMsg("❌ Girdiğiniz 6 haneli şifre sıfırlama kodu hatalı! Lütfen e-postanıza gelen son kodu girin.");
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          setErrorMsg("Yeni şifreniz en az 6 karakter olmalıdır.");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          setErrorMsg("❌ Girdiğiniz yeni şifreler birbiriyle eşleşmiyor!");
+          return;
+        }
+
+        // Şifreyi güncelle ve hesabı doğrulanmış olarak işaretle
+        const updatedList = registeredUsers.map((u) =>
+          u.email.toLowerCase() === pendingEmail.toLowerCase()
+            ? { ...u, password: newPassword, verified: true, resetCode: "" }
+            : u
+        );
+        setRegisteredUsers(updatedList);
+        try { localStorage.setItem("cozmetix_registered_users", JSON.stringify(updatedList)); } catch {}
+
+        setEmail(pendingEmail);
+        setPassword("");
+        setMode("login");
+        setSuccessMsg("✓ Şifreniz başarıyla değiştirildi! Şimdi yeni şifrenizle giriş yapabilirsiniz.");
+        notify("✓ Şifreniz başarıyla güncellendi!");
+      };
+
+      const resendCode = async (purpose = "register") => {
         const newCode = String(Math.floor(100000 + Math.random() * 900000));
         const updatedList = registeredUsers.map((u) =>
           u.email.toLowerCase() === pendingEmail.toLowerCase()
-            ? { ...u, verificationCode: newCode }
+            ? purpose === "reset"
+              ? { ...u, resetCode: newCode }
+              : { ...u, verificationCode: newCode }
             : u
         );
         setRegisteredUsers(updatedList);
         try { localStorage.setItem("cozmetix_registered_users", JSON.stringify(updatedList)); } catch {}
 
         const target = updatedList.find((u) => u.email.toLowerCase() === pendingEmail.toLowerCase());
-        await dispatchVerificationEmail(pendingEmail, target?.name || "Üye", newCode);
+        await dispatchEmailCode(pendingEmail, target?.name || "Üye", newCode, purpose);
       };
 
       const completeOnboarding = () => {
@@ -617,22 +719,12 @@
       return (
         <div className="max-w-lg mx-auto">
           <div className="rounded-3xl p-7 md:p-8 shadow-sm" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-            {step === 0 && mode !== "verify" && (
+            {/* Üst Sekmeler (Giriş Yap / Yeni Üye Ol) */}
+            {step === 0 && (mode === "login" || mode === "register") && (
               <div className="flex rounded-full p-1 mb-6" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
                 <button
                   type="button"
-                  onClick={() => { setMode("register"); setErrorMsg(""); }}
-                  className="flex-1 py-2.5 rounded-full text-xs font-semibold transition"
-                  style={{
-                    background: mode === "register" ? C.ink : "transparent",
-                    color: mode === "register" ? "#FFFDF9" : C.muted,
-                  }}
-                >
-                  ✨ Yeni Üye Ol
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setMode("login"); setErrorMsg(""); }}
+                  onClick={() => { setMode("login"); setErrorMsg(""); setSuccessMsg(""); }}
                   className="flex-1 py-2.5 rounded-full text-xs font-semibold transition"
                   style={{
                     background: mode === "login" ? C.ink : "transparent",
@@ -641,9 +733,31 @@
                 >
                   🔑 Giriş Yap
                 </button>
+                <button
+                  type="button"
+                  onClick={() => { setMode("register"); setErrorMsg(""); setSuccessMsg(""); }}
+                  className="flex-1 py-2.5 rounded-full text-xs font-semibold transition"
+                  style={{
+                    background: mode === "register" ? C.ink : "transparent",
+                    color: mode === "register" ? "#FFFDF9" : C.muted,
+                  }}
+                >
+                  ✨ Yeni Üye Ol
+                </button>
               </div>
             )}
 
+            {/* Başarı Mesajı */}
+            {successMsg && (
+              <div
+                className="mb-5 p-3.5 rounded-2xl text-xs font-medium leading-relaxed"
+                style={{ background: "#EBF2E5", color: C.accent2, border: `1px solid ${C.accent2}` }}
+              >
+                {successMsg}
+              </div>
+            )}
+
+            {/* Hata Mesajı */}
             {errorMsg && (
               <div
                 className="mb-5 p-3.5 rounded-2xl text-xs font-medium leading-relaxed"
@@ -653,12 +767,13 @@
               </div>
             )}
 
+            {/* 1. GİRİŞ YAP EKRANI */}
             {step === 0 && mode === "login" && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-serif font-bold">Hesabınıza Giriş Yapın</h2>
                   <p className="text-xs mt-1" style={{ color: C.muted }}>
-                    Yalnızca e-posta doğrulamasını tamamlamış kayıtlı üyeler giriş yapabilir.
+                    Kayıtlı ve e-posta onaylı hesabınızla giriş yapın.
                   </p>
                 </div>
 
@@ -676,7 +791,17 @@
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium block mb-1">Şifreniz *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium">Şifreniz *</label>
+                    <button
+                      type="button"
+                      onClick={() => { setMode("forgot"); setErrorMsg(""); setSuccessMsg(""); }}
+                      className="text-xs underline font-semibold"
+                      style={{ color: C.accent }}
+                    >
+                      Şifremi Unuttum?
+                    </button>
+                  </div>
                   <input
                     type="password"
                     required
@@ -698,6 +823,138 @@
               </form>
             )}
 
+            {/* 2. ŞİFREMİ UNUTTUM — E-POSTA İSTEME EKRANI */}
+            {step === 0 && mode === "forgot" && (
+              <form onSubmit={handleForgotRequest} className="space-y-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest font-bold" style={{ color: C.accent }}>
+                    ŞİFRE KURTARMA MERKEZİ
+                  </div>
+                  <h2 className="text-2xl font-serif font-bold mt-1">Şifrenizi mi Unuttunuz?</h2>
+                  <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
+                    Kayıtlı e-posta adresinizi girin; şifrenizi yenilemeniz için e-postanıza 6 haneli bir güvenlik kodu gönderelim.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium block mb-1">Kayıtlı E-posta Adresiniz *</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ornek@gmail.com"
+                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                    style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={sendingEmail}
+                  className="w-full py-3.5 rounded-full text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
+                  style={{ background: C.accent, color: "#FFF" }}
+                >
+                  {sendingEmail ? "Kod Gönderiliyor…" : "📧 6 Haneli Sıfırlama Kodu Gönder →"}
+                </button>
+
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setMode("login"); setErrorMsg(""); }}
+                    className="text-xs underline"
+                    style={{ color: C.muted }}
+                  >
+                    ← Giriş Ekranına Dön
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* 3. ŞİFRE SIFIRLAMA — 6 HANELİ KOD + YENİ ŞİFRE BELİRLEME EKRANI */}
+            {step === 0 && mode === "reset" && (
+              <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+                <div className="text-center">
+                  <div className="text-[10px] uppercase tracking-widest font-bold" style={{ color: C.accent }}>
+                    YENİ ŞİFRE BELİRLEME
+                  </div>
+                  <h2 className="text-2xl font-serif font-bold mt-1">Sıfırlama Kodunu Girin</h2>
+                  <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
+                    <strong style={{ color: C.ink }}>{pendingEmail}</strong> adresinize gönderilen 6 haneli kodu ve yeni şifrenizi girin.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium block mb-1 text-center">E-postanıza Gelen 6 Haneli Kod *</label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={resetOtpInput}
+                    onChange={(e) => setResetOtpInput(e.target.value.replace(/\D/g, ""))}
+                    placeholder="• • • • • •"
+                    className="w-full px-4 py-3 rounded-2xl text-center text-2xl tracking-[0.5em] font-bold outline-none"
+                    style={{ background: C.bg, border: `2px solid ${C.accent}`, color: C.ink }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium block mb-1">Yeni Şifreniz (En az 6 karakter) *</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Yeni şifreniz"
+                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                    style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium block mb-1">Yeni Şifreniz (Tekrar) *</label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Yeni şifrenizi tekrar yazın"
+                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                    style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-full text-sm font-semibold transition hover:opacity-90"
+                  style={{ background: C.accent2, color: "#FFF" }}
+                >
+                  ✓ Yeni Şifremi Kaydet
+                </button>
+
+                <div className="flex items-center justify-between pt-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => resendCode("reset")}
+                    disabled={sendingEmail}
+                    className="underline font-medium"
+                    style={{ color: C.accent }}
+                  >
+                    ↻ Kodu Tekrar Gönder
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMode("login"); setErrorMsg(""); }}
+                    className="underline"
+                    style={{ color: C.muted }}
+                  >
+                    İptal Et
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* 4. YENİ ÜYE OL EKRANI */}
             {step === 0 && mode === "register" && (
               <form onSubmit={handleRegisterSubmit} className="space-y-4">
                 <div>
@@ -770,6 +1027,7 @@
               </form>
             )}
 
+            {/* 5. YENİ ÜYELİK 6 HANELİ KOD DOĞRULAMA EKRANI */}
             {step === 0 && mode === "verify" && (
               <form onSubmit={handleVerifyCode} className="space-y-4 text-center">
                 <div className="w-14 h-14 mx-auto rounded-full flex items-center justify-center text-2xl" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
@@ -809,7 +1067,7 @@
                 <div className="flex items-center justify-between pt-2 text-xs">
                   <button
                     type="button"
-                    onClick={resendCode}
+                    onClick={() => resendCode("register")}
                     disabled={sendingEmail}
                     className="underline font-medium"
                     style={{ color: C.accent }}
@@ -828,6 +1086,7 @@
               </form>
             )}
 
+            {/* ADIM 1: YAŞ ARALIĞI */}
             {step === 1 && (
               <div>
                 <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent2 }}>✓ E-POSTA ONAYLANDI · ADIM 1 / 3</div>
@@ -854,6 +1113,7 @@
               </div>
             )}
 
+            {/* ADIM 2: CİLT ENDİŞELERİ */}
             {step === 2 && (
               <div>
                 <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent }}>ADIM 2 / 3 · ODAK ALANLARI</div>
@@ -890,6 +1150,7 @@
               </div>
             )}
 
+            {/* ADIM 3: BÜTÇE */}
             {step === 3 && (
               <div>
                 <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent }}>ADIM 3 / 3 · SON ADIM</div>
@@ -1081,7 +1342,7 @@
                 className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold"
                 style={{ background: C.accent2, color: "#fff" }}
               >
-                ✓ E-posta Doğrulama Aktif
+                ✓ E-posta Doğrulama & Şifre Kurtarma Aktif
               </span>
             </div>
 
@@ -1145,7 +1406,7 @@
                       📷 Cildimi Analiz Et
                     </button>
                     <button onClick={() => setPage("products")} className="px-6 py-3 rounded-full text-sm font-semibold" style={{ border: "1px solid rgba(255,255,255,0.35)", color: "#FFFDF9" }}>
-                      🛍️ Ürünleri Gör
+                      🛍️️ Ürünleri Gör
                     </button>
                   </div>
                 </div>
