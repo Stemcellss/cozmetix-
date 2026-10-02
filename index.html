@@ -1,301 +1,3487 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COZMETIX — AI-Powered Personal Skincare Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8F7F4; color: #171717; }
-        .gradient-text { background: linear-gradient(135deg, #171717 0%, #523774 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cozmetix AI — Intelligent Skincare</title>
+
+<meta
+  name="description"
+  content="Cozmetix AI — AI skin analysis, personalized skincare routines, product intelligence and AI Coach."
+>
+
+<style>
+
+:root{
+  --bg:#f8f7f4;
+  --white:#ffffff;
+  --black:#171717;
+  --text:#202020;
+  --muted:#77736e;
+  --border:#e7e2db;
+  --purple:#ded6eb;
+  --purple-dark:#9b8caf;
+  --green:#dfeade;
+  --red:#f2dddd;
+  --radius:22px;
+  --shadow:0 20px 60px rgba(0,0,0,.08);
+  --max:1380px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.container{
+  width:min(var(--max),calc(100% - 40px));
+  margin:auto;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.top-banner{
+  background:#171717;
+  color:white;
+  text-align:center;
+  font-size:13px;
+  padding:9px;
+}
+
+.header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(248,247,244,.94);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+
+.nav{
+  height:76px;
+  display:flex;
+  align-items:center;
+  gap:35px;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:800;
+  letter-spacing:-1.5px;
+}
+
+.logo span{
+  font-weight:400;
+}
+
+.logo small{
+  font-size:10px;
+  background:var(--purple);
+  padding:4px 7px;
+  border-radius:20px;
+  margin-left:5px;
+}
+
+.nav-links{
+  display:flex;
+  gap:25px;
+  margin-left:auto;
+  align-items:center;
+}
+
+.nav-links a{
+  font-size:14px;
+  color:#555;
+}
+
+.nav-links a:hover{
+  color:#000;
+}
+
+.mobile-menu{
+  display:none;
+  border:0;
+  background:none;
+  font-size:25px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+  border:1px solid var(--black);
+  background:var(--black);
+  color:white;
+  padding:13px 22px;
+  border-radius:50px;
+  font-weight:700;
+  border:none;
+  transition:.2s;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+}
+
+.btn-light{
+  background:white;
+  color:var(--black);
+  border:1px solid var(--border);
+}
+
+.btn-purple{
+  background:var(--purple);
+  color:var(--black);
+  border:1px solid var(--purple);
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  padding:90px 0 80px;
+}
+
+.hero-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:70px;
+  align-items:center;
+}
+
+.badge{
+  display:inline-block;
+  background:var(--purple);
+  padding:8px 14px;
+  border-radius:50px;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.hero h1{
+  font-size:clamp(50px,7vw,92px);
+  line-height:.94;
+  letter-spacing:-.065em;
+  margin:25px 0;
+}
+
+.hero p{
+  color:var(--muted);
+  font-size:19px;
+  max-width:600px;
+  line-height:1.7;
+}
+
+.hero-buttons{
+  display:flex;
+  gap:12px;
+  margin-top:30px;
+  flex-wrap:wrap;
+}
+
+.hero-trust{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:25px;
+}
+
+.trust{
+  background:white;
+  border:1px solid var(--border);
+  padding:7px 12px;
+  border-radius:50px;
+  font-size:12px;
+}
+
+.hero-visual{
+  height:570px;
+  border-radius:40px;
+  background:
+    radial-gradient(circle at 30% 20%,#fff,#ebe5f0 50%,#ded6e8);
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+
+.face{
+  position:absolute;
+  width:320px;
+  height:420px;
+  background:linear-gradient(145deg,#f3d5c0,#d7a88c);
+  border-radius:48% 48% 46% 46%;
+  left:50%;
+  top:45%;
+  transform:translate(-50%,-50%);
+  box-shadow:inset -25px -20px 40px rgba(100,50,30,.13);
+}
+
+.eye{
+  position:absolute;
+  top:155px;
+  width:50px;
+  height:12px;
+  border-bottom:3px solid #694a40;
+  border-radius:50%;
+}
+
+.eye.left{
+  left:65px;
+}
+
+.eye.right{
+  right:65px;
+}
+
+.nose{
+  position:absolute;
+  width:3px;
+  height:85px;
+  background:rgba(90,50,40,.25);
+  top:165px;
+  left:50%;
+}
+
+.mouth{
+  position:absolute;
+  width:65px;
+  height:22px;
+  border-bottom:4px solid #87564d;
+  border-radius:50%;
+  left:50%;
+  top:275px;
+  transform:translateX(-50%);
+}
+
+.ai-result{
+  position:absolute;
+  left:25px;
+  right:25px;
+  bottom:25px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(20px);
+  padding:20px;
+  border-radius:23px;
+}
+
+.ai-result-title{
+  font-size:12px;
+  text-transform:uppercase;
+  color:#8a7a9b;
+  font-weight:800;
+}
+
+.ai-result strong{
+  display:block;
+  font-size:20px;
+  margin-top:5px;
+}
+
+.metrics{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.metric{
+  background:#f1efeb;
+  border-radius:50px;
+  padding:6px 10px;
+  font-size:11px;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+section{
+  padding:90px 0;
+}
+
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  gap:40px;
+  align-items:end;
+  margin-bottom:40px;
+}
+
+.section-header h2{
+  font-size:55px;
+  line-height:1;
+  letter-spacing:-.055em;
+}
+
+.section-header p{
+  max-width:560px;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+/* =========================
+   MODULE CARDS
+========================= */
+
+.modules{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+
+.module{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:26px;
+  padding:25px;
+  min-height:220px;
+  transition:.2s;
+}
+
+.module:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow);
+}
+
+.module-icon{
+  width:45px;
+  height:45px;
+  border-radius:14px;
+  background:var(--purple);
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  margin-bottom:22px;
+}
+
+.module h3{
+  font-size:19px;
+  margin-bottom:8px;
+}
+
+.module p{
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dark-section{
+  background:#171717;
+  color:white;
+}
+
+.dashboard{
+  display:grid;
+  grid-template-columns:.75fr 1.25fr;
+  gap:50px;
+  align-items:center;
+}
+
+.dashboard h2{
+  font-size:58px;
+  line-height:.98;
+  letter-spacing:-.055em;
+}
+
+.dashboard p{
+  color:#aaa;
+  margin-top:20px;
+  line-height:1.7;
+}
+
+.dashboard-ui{
+  background:#f5f2ed;
+  color:#171717;
+  border-radius:30px;
+  padding:22px;
+}
+
+.dashboard-header{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.score-card{
+  background:white;
+  padding:20px;
+  border-radius:20px;
+}
+
+.score{
+  font-size:42px;
+  font-weight:800;
+  letter-spacing:-.05em;
+  margin-top:5px;
+}
+
+.progress{
+  height:8px;
+  background:#e5e1db;
+  border-radius:50px;
+  overflow:hidden;
+  margin-top:12px;
+}
+
+.progress span{
+  display:block;
+  height:100%;
+  background:#171717;
+  width:76%;
+}
+
+/* =========================
+   ROUTINE
+========================= */
+
+.routine-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:25px;
+}
+
+.routine-column{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:25px;
+}
+
+.routine-title{
+  font-size:13px;
+  color:#8b7b99;
+  text-transform:uppercase;
+  font-weight:800;
+  margin-bottom:15px;
+}
+
+.routine-step{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  margin-top:10px;
+}
+
+.step-number{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#f1efeb;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+}
+
+.routine-step small{
+  display:block;
+  color:var(--muted);
+}
+
+/* =========================
+   PRODUCTS
+========================= */
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+
+.product{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:25px;
+  overflow:hidden;
+}
+
+.product-image{
+  height:220px;
+  background:linear-gradient(135deg,#eee8f4,#f4ebe4);
+  display:grid;
+  place-items:center;
+  font-size:65px;
+}
+
+.product-content{
+  padding:20px;
+}
+
+.product-content h3{
+  margin:7px 0;
+}
+
+.ingredients{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.price{
+  font-weight:800;
+  margin-top:12px;
+}
+
+/* =========================
+   SCANNER
+========================= */
+
+.scanner{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:70px;
+  align-items:center;
+}
+
+.scanner h2{
+  font-size:58px;
+  line-height:1;
+  letter-spacing:-.05em;
+}
+
+.scanner p{
+  color:var(--muted);
+  margin:20px 0;
+  line-height:1.7;
+}
+
+.phone{
+  background:#171717;
+  border-radius:40px;
+  padding:12px;
+  width:350px;
+  margin:auto;
+}
+
+.phone-screen{
+  background:#f3f0ea;
+  border-radius:30px;
+  padding:20px;
+  min-height:570px;
+}
+
+.camera{
+  height:400px;
+  margin-top:20px;
+  border:2px dashed #aaa;
+  border-radius:25px;
+  display:grid;
+  place-items:center;
+  font-size:60px;
+}
+
+/* =========================
+   AI COACH
+========================= */
+
+.coach{
+  background:linear-gradient(135deg,#e8e0ef,#f2e8de);
+  border-radius:35px;
+  padding:55px;
+}
+
+.chat{
+  max-width:850px;
+  margin:auto;
+}
+
+.message{
+  padding:18px 20px;
+  border-radius:22px;
+  max-width:75%;
+  margin:12px 0;
+}
+
+.message.ai{
+  background:white;
+}
+
+.message.user{
+  background:#171717;
+  color:white;
+  margin-left:auto;
+}
+
+.chat-input{
+  background:white;
+  padding:8px;
+  border-radius:50px;
+  display:flex;
+  gap:10px;
+  margin-top:25px;
+}
+
+.chat-input input{
+  flex:1;
+  border:0;
+  outline:0;
+  padding:12px 18px;
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.progress-card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:25px;
+  padding:25px;
+}
+
+.big-number{
+  font-size:48px;
+  font-weight:800;
+  margin:10px 0;
+}
+
+/* =========================
+   PRICING
+========================= */
+
+.pricing{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.plan{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:30px;
+}
+
+.plan.featured{
+  background:#171717;
+  color:white;
+}
+
+.plan h3{
+  font-size:23px;
+  margin:12px 0;
+}
+
+.plan-price{
+  font-size:46px;
+  font-weight:800;
+}
+
+.plan ul{
+  min-height:170px;
+  padding-left:20px;
+  margin-top:20px;
+}
+
+.plan li{
+  margin:10px 0;
+}
+
+/* =========================
+   ADMIN
+========================= */
+
+.admin{
+  background:white;
+  border-radius:30px;
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+
+.admin-header{
+  background:#171717;
+  color:white;
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.admin-body{
+  display:grid;
+  grid-template-columns:220px 1fr;
+}
+
+.admin-sidebar{
+  background:#f1eee8;
+  padding:20px;
+}
+
+.admin-sidebar a{
+  display:block;
+  padding:11px;
+  border-radius:10px;
+  font-size:13px;
+}
+
+.admin-sidebar a:hover{
+  background:white;
+}
+
+.admin-content{
+  padding:25px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.stat{
+  border:1px solid var(--border);
+  padding:18px;
+  border-radius:18px;
+}
+
+.stat strong{
+  display:block;
+  font-size:28px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+  background:#171717;
+  color:white;
+  padding:70px 0 30px;
+}
+
+.footer-grid{
+  display:grid;
+  grid-template-columns:1.5fr repeat(3,1fr);
+  gap:40px;
+}
+
+.footer-grid h4{
+  margin-bottom:15px;
+}
+
+.footer-grid a{
+  display:block;
+  color:#aaa;
+  margin:8px 0;
+  font-size:14px;
+}
+
+.copyright{
+  border-top:1px solid #333;
+  margin-top:50px;
+  padding-top:20px;
+  color:#888;
+  font-size:12px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:999;
+  background:rgba(0,0,0,.55);
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal.active{
+  display:flex;
+}
+
+.modal-box{
+  background:white;
+  width:min(600px,100%);
+  border-radius:28px;
+  padding:30px;
+  position:relative;
+  max-height:90vh;
+  overflow:auto;
+}
+
+.modal-close{
+  position:absolute;
+  right:20px;
+  top:15px;
+  border:0;
+  background:none;
+  font-size:28px;
+}
+
+.form{
+  display:grid;
+  gap:14px;
+  margin-top:20px;
+}
+
+.form input,
+.form textarea,
+.form select{
+  width:100%;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  outline:none;
+}
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#171717;
+  color:white;
+  padding:15px 20px;
+  border-radius:15px;
+  z-index:2000;
+  display:none;
+}
+
+.toast.show{
+  display:block;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:1050px){
+
+  .nav-links{
+    display:none;
+  }
+
+  .mobile-menu{
+    display:block;
+    margin-left:auto;
+  }
+
+  .hero-grid,
+  .dashboard,
+  .scanner{
+    grid-template-columns:1fr;
+  }
+
+  .modules,
+  .products{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .admin-body{
+    grid-template-columns:1fr;
+  }
+
+  .admin-sidebar{
+    display:none;
+  }
+
+}
+
+@media(max-width:650px){
+
+  .container{
+    width:calc(100% - 24px);
+  }
+
+  section{
+    padding:60px 0;
+  }
+
+  .hero{
+    padding:55px 0;
+  }
+
+  .hero h1{
+    font-size:50px;
+  }
+
+  .hero-visual{
+    height:430px;
+  }
+
+  .face{
+    width:230px;
+    height:310px;
+  }
+
+  .modules,
+  .products,
+  .routine-grid,
+  .progress-grid,
+  .pricing,
+  .stats,
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+
+  .section-header{
+    display:block;
+  }
+
+  .section-header h2,
+  .dashboard h2,
+  .scanner h2{
+    font-size:42px;
+  }
+
+  .coach{
+    padding:25px;
+  }
+
+  .footer-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+
+</style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-[#DCD5EA] selection:text-[#171717]">
 
-    <!-- Main Navigation -->
-    <header class="sticky top-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#E8E5E0]">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('landing')">
-                <div class="w-10 h-10 rounded-2xl bg-[#171717] flex items-center justify-center text-white font-black text-xl shadow-lg">C</div>
-                <span class="text-2xl font-extrabold tracking-tight text-[#171717]">COZMETIX</span>
-            </div>
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-neutral-600">
-                <button onclick="switchView('landing')" class="hover:text-[#171717] transition">Ecosystem</button>
-                <button onclick="switchView('scan')" class="hover:text-[#171717] transition">Skin AI</button>
-                <button onclick="switchView('routine')" class="hover:text-[#171717] transition">Smart Routine</button>
-                <button onclick="switchView('progress')" class="hover:text-[#171717] transition">Skin Journey</button>
-                <button onclick="switchView('discover')" class="hover:text-[#171717] transition">Shop</button>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <button onclick="openModal('loginModal')" class="text-sm font-semibold text-neutral-700 hover:text-black transition px-4 py-2">Sign In</button>
-                <button onclick="switchView('scan')" class="bg-[#171717] text-white px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-neutral-800 transition shadow-xl shadow-black/10">Analyze My Skin</button>
-            </div>
-        </div>
-    </header>
+<body>
 
-    <!-- Dynamic App Container -->
-    <main id="appContainer" class="flex-grow">
-        <!-- VIEW 1: LANDING PAGE -->
-        <div id="view-landing" class="space-y-24 py-12">
-            <section class="max-w-5xl mx-auto text-center space-y-8 px-6 pt-12">
-                <div class="inline-flex items-center gap-2 bg-[#DCD5EA]/60 border border-[#DCD5EA] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-neutral-900 shadow-sm">
-                    ✨ AI-Powered Personal Skincare Platform
-                </div>
-                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-[#171717] leading-tight">
-                    Your Skin. <span class="gradient-text">Understood.</span>
-                </h1>
-                <p class="text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto font-normal">
-                    Personalized skincare powered by AI. Analyze your appearance, build a minimal effective routine, and track your skin journey over time.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                    <button onclick="switchView('scan')" class="w-full sm:w-auto bg-[#171717] text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-neutral-800 transition shadow-2xl shadow-black/20 flex items-center justify-center gap-2">
-                        <i data-lucide="scan-face" class="w-5 h-5"></i> Analyze My Skin
-                    </button>
-                    <button onclick="switchView('discover')" class="w-full sm:w-auto bg-[#FFFFFF] text-[#171717] border border-[#E8E5E0] px-8 py-4 rounded-2xl font-bold text-base hover:bg-neutral-50 transition shadow-sm">
-                        Explore Skincare
-                    </button>
-                </div>
-            </section>
+<!-- ============================================================
+     TOP
+============================================================ -->
 
-            <!-- Ecosystem Architecture Section -->
-            <section class="max-w-7xl mx-auto px-6">
-                <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-[#171717]">One Scan. A More Personal Routine.</h2>
-                    <p class="text-neutral-600">The continuous loop connecting scan, intelligence, routine, and progress.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E8E5E0] shadow-sm hover:shadow-xl transition space-y-4 cursor-pointer" onclick="switchView('scan')">
-                        <div class="w-14 h-14 rounded-2xl bg-[#DCD5EA]/40 text-neutral-900 flex items-center justify-center font-bold text-xl">01</div>
-                        <h3 class="text-xl font-bold text-[#171717]">SCAN</h3>
-                        <p class="text-neutral-600 text-sm leading-relaxed">Multi-model computer vision analyzing oil balance, texture, visible redness, and pore appearance under regulated guidance.</p>
-                    </div>
-                    <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E8E5E0] shadow-sm hover:shadow-xl transition space-y-4 cursor-pointer" onclick="switchView('routine')">
-                        <div class="w-14 h-14 rounded-2xl bg-[#DCD5EA]/40 text-neutral-900 flex items-center justify-center font-bold text-xl">02</div>
-                        <h3 class="text-xl font-bold text-[#171717]">UNDERSTAND & PERSONALIZE</h3>
-                        <p class="text-neutral-600 text-sm leading-relaxed">Mapping your skin profile and product cabinet to a minimal effective morning and evening cosmetic routine.</p>
-                    </div>
-                    <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E8E5E0] shadow-sm hover:shadow-xl transition space-y-4 cursor-pointer" onclick="switchView('progress')">
-                        <div class="w-14 h-14 rounded-2xl bg-[#DCD5EA]/40 text-neutral-900 flex items-center justify-center font-bold text-xl">03</div>
-                        <h3 class="text-xl font-bold text-[#171717]">TRACK & ADAPT</h3>
-                        <p class="text-neutral-600 text-sm leading-relaxed">Longitudinal progress tracking across Day 1, Day 14, Day 30 and beyond with AI Coach guidance.</p>
-                    </div>
-                </div>
-            </section>
-        </div>
+<div class="top-banner">
+  COZMETIX AI • Intelligent skincare platform
+</div>
 
-        <!-- VIEW 2: SKIN SCAN & ONBOARDING -->
-        <div id="view-scan" class="hidden max-w-3xl mx-auto px-6 py-12 space-y-8">
-            <div class="bg-[#FFFFFF] p-8 md:p-12 rounded-3xl border border-[#E8E5E0] shadow-xl space-y-8 text-left">
-                <div class="text-center space-y-2">
-                    <span class="text-xs font-bold text-neutral-700 uppercase tracking-widest bg-[#DCD5EA]/50 px-3 py-1 rounded-full">Cozmetix Skin Engine</span>
-                    <h2 class="text-3xl font-extrabold text-[#171717]">Skin Goals & Camera Scan</h2>
-                    <p class="text-neutral-600 text-sm">Select up to 5 skin goals for your customized analysis.</p>
-                </div>
+<header class="header">
 
-                <div class="space-y-6">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <label class="border border-[#E8E5E0] p-4 rounded-2xl cursor-pointer hover:border-black flex items-center gap-3 text-sm font-medium"><input type="checkbox" class="accent-black"> Acne Appearance</label>
-                        <label class="border border-[#E8E5E0] p-4 rounded-2xl cursor-pointer hover:border-black flex items-center gap-3 text-sm font-medium"><input type="checkbox" class="accent-black"> Dark Spots</label>
-                        <label class="border border-[#E8E5E0] p-4 rounded-2xl cursor-pointer hover:border-black flex items-center gap-3 text-sm font-medium"><input type="checkbox" class="accent-black"> Visible Redness</label>
-                        <label class="border border-[#E8E5E0] p-4 rounded-2xl cursor-pointer hover:border-black flex items-center gap-3 text-sm font-medium"><input type="checkbox" class="accent-black"> Dryness</label>
-                        <label class="border border-[#E8E5E0] p-4 rounded-2xl cursor-pointer hover:border-black flex items-center gap-3 text-sm font-medium"><input type="checkbox" class="accent-black"> Oiliness</label>
-                        <label class="border border-[#E8E5E0] p-4 rounded-2xl cursor-pointer hover:border-black flex items-center gap-3 text-sm font-medium"><input type="checkbox" class="accent-black"> Texture & Pores</label>
-                    </div>
+  <nav class="nav container">
 
-                    <div class="p-6 bg-[#F8F7F4] rounded-2xl border border-[#E8E5E0] space-y-4 text-center">
-                        <h4 class="font-bold text-[#171717] text-sm">Camera Checklist & Lighting Guide</h4>
-                        <p class="text-xs text-neutral-600 max-w-md mx-auto">Ensure neutral expression, no heavy filters, and good lighting for high-confidence appearance analysis.</p>
-                        <button onclick="runScanSimulation()" class="bg-[#171717] text-white px-8 py-3.5 rounded-2xl font-bold text-sm hover:bg-neutral-800 transition shadow-lg cursor-pointer">Start Camera Capture & Analyze</button>
-                    </div>
-                </div>
+    <a href="#home" class="logo">
+      Cozmet<span>ix</span>
+      <small>AI</small>
+    </a>
 
-                <!-- Simulation Output -->
-                <div id="scanOutput" class="hidden space-y-6 pt-6 border-t border-[#E8E5E0]">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xl font-bold text-[#171717]">Your Skin Snapshot</h3>
-                        <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">Analysis Confidence: 91%</span>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div class="bg-[#F8F7F4] p-4 rounded-2xl border border-[#E8E5E0]"><div class="text-xs text-neutral-500 font-semibold">Oil Balance</div><div class="text-2xl font-black text-[#171717]">64</div></div>
-                        <div class="bg-[#F8F7F4] p-4 rounded-2xl border border-[#E8E5E0]"><div class="text-xs text-neutral-500 font-semibold">Texture</div><div class="text-2xl font-black text-[#171717]">76</div></div>
-                        <div class="bg-[#F8F7F4] p-4 rounded-2xl border border-[#E8E5E0]"><div class="text-xs text-neutral-500 font-semibold">Evenness</div><div class="text-2xl font-black text-[#171717]">68</div></div>
-                    </div>
-                    <button onclick="switchView('routine')" class="w-full bg-[#171717] text-white py-3.5 rounded-2xl font-bold text-sm cursor-pointer hover:bg-neutral-800 transition">Build My Routine</button>
-                </div>
-            </div>
-        </div>
+    <div class="nav-links">
 
-        <!-- VIEW 3: ROUTINE BUILDER -->
-        <div id="view-routine" class="hidden max-w-4xl mx-auto px-6 py-12 space-y-8 text-left">
-            <div class="bg-[#FFFFFF] p-8 md:p-12 rounded-3xl border border-[#E8E5E0] shadow-xl space-y-8">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-neutral-700 uppercase tracking-widest bg-[#DCD5EA]/50 px-3 py-1 rounded-full">Cozmetix Routine</span>
-                        <h2 class="text-3xl font-extrabold text-[#171717] mt-2">Your Personal Routine</h2>
-                    </div>
-                    <button onclick="alert('Routine marked complete for today!')" class="bg-[#171717] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md cursor-pointer">Complete Today</button>
-                </div>
-                <div class="space-y-4">
-                    <div class="p-6 bg-[#F8F7F4] rounded-2xl border border-[#E8E5E0] space-y-2">
-                        <h4 class="font-bold text-[#171717] text-base">☀️ Morning Routine</h4>
-                        <p class="text-sm text-neutral-600">1. Purifying Cleanser → 2. Niacinamide Serum → 3. Lightweight Moisturizer → 4. Mineral SPF 50</p>
-                    </div>
-                    <div class="p-6 bg-[#F8F7F4] rounded-2xl border border-[#E8E5E0] space-y-2">
-                        <h4 class="font-bold text-[#171717] text-base">🌙 Evening Routine</h4>
-                        <p class="text-sm text-neutral-600">1. Gentle Cleanser → 2. Barrier Support Treatment → 3. Deep Hydration Cream</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <a href="#analysis">AI Analysis</a>
+      <a href="#routine">Routine</a>
+      <a href="#products">Products</a>
+      <a href="#coach">AI Coach</a>
+      <a href="#progress">Progress</a>
+      <a href="#pricing">Plans</a>
 
-        <!-- VIEW 4: DISCOVER & SHOP -->
-        <div id="view-discover" class="hidden max-w-7xl mx-auto px-6 py-12 space-y-8 text-left">
-            <div class="text-center max-w-2xl mx-auto space-y-2">
-                <span class="text-xs font-bold text-neutral-700 uppercase tracking-widest bg-[#DCD5EA]/50 px-3 py-1 rounded-full">Product Intelligence</span>
-                <h2 class="text-3xl font-extrabold text-[#171717]">Recommended For Your Skin</h2>
-                <p class="text-neutral-600 text-sm">Matched by your active skin profile compatibility engine.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-[#FFFFFF] p-6 rounded-3xl border border-[#E8E5E0] shadow-sm space-y-4">
-                    <div class="h-40 bg-[#F8F7F4] rounded-2xl flex items-center justify-center font-bold text-neutral-400">Product Image</div>
-                    <div class="flex justify-between items-center"><h3 class="font-bold text-[#171717]">Barrier Support Serum</h3><span class="text-xs font-extrabold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg">94% Match</span></div>
-                    <p class="text-xs text-neutral-500">Niacinamide + Ceramide complex for oil balance.</p>
-                    <button onclick="alert('Added to your routine & cart!')" class="w-full bg-[#171717] text-white py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition cursor-pointer">Add to Routine</button>
-                </div>
-                <div class="bg-[#FFFFFF] p-6 rounded-3xl border border-[#E8E5E0] shadow-sm space-y-4">
-                    <div class="h-40 bg-[#F8F7F4] rounded-2xl flex items-center justify-center font-bold text-neutral-400">Product Image</div>
-                    <div class="flex justify-between items-center"><h3 class="font-bold text-[#171717]">Hydrating Mineral SPF</h3><span class="text-xs font-extrabold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg">91% Match</span></div>
-                    <p class="text-xs text-neutral-500">Broad spectrum daily protection.</p>
-                    <button onclick="alert('Added to your routine & cart!')" class="w-full bg-[#171717] text-white py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition cursor-pointer">Add to Routine</button>
-                </div>
-                <div class="bg-[#FFFFFF] p-6 rounded-3xl border border-[#E8E5E0] shadow-sm space-y-4">
-                    <div class="h-40 bg-[#F8F7F4] rounded-2xl flex items-center justify-center font-bold text-neutral-400">Product Image</div>
-                    <div class="flex justify-between items-center"><h3 class="font-bold text-[#171717]">Purifying Cleanser</h3><span class="text-xs font-extrabold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg">89% Match</span></div>
-                    <p class="text-xs text-neutral-500">pH balanced formula for gentle daily cleansing.</p>
-                    <button onclick="alert('Added to your routine & cart!')" class="w-full bg-[#171717] text-white py-3 rounded-xl font-bold text-sm hover:bg-neutral-800 transition cursor-pointer">Add to Routine</button>
-                </div>
-            </div>
-        </div>
+      <button
+        class="btn btn-light"
+        onclick="openLogin()"
+      >
+        Login
+      </button>
 
-        <!-- VIEW 5: SKIN JOURNEY -->
-        <div id="view-progress" class="hidden max-w-4xl mx-auto px-6 py-12 space-y-8 text-left">
-            <div class="bg-[#FFFFFF] p-8 md:p-12 rounded-3xl border border-[#E8E5E0] shadow-xl space-y-6">
-                <div>
-                    <span class="text-xs font-bold text-neutral-700 uppercase tracking-widest bg-[#DCD5EA]/50 px-3 py-1 rounded-full">Skin Journey</span>
-                    <h2 class="text-3xl font-extrabold text-[#171717] mt-2">Longitudinal Progress Tracking</h2>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="p-5 bg-[#F8F7F4] rounded-2xl text-center border border-[#E8E5E0] font-bold text-sm">Day 1<div class="text-xs font-normal text-neutral-500 mt-1">Baseline Scan</div></div>
-                    <div class="p-5 bg-[#F8F7F4] rounded-2xl text-center border border-[#E8E5E0] font-bold text-sm">Day 14<div class="text-xs font-normal text-neutral-500 mt-1">Mid-Point Review</div></div>
-                    <div class="p-5 bg-[#F8F7F4] rounded-2xl text-center border border-[#E8E5E0] font-bold text-sm">Day 30<div class="text-xs font-normal text-neutral-500 mt-1">Target Milestone</div></div>
-                    <div class="p-5 bg-[#DCD5EA]/50 text-[#171717] rounded-2xl text-center border border-[#DCD5EA] font-bold text-sm">Day 60<div class="text-xs font-normal text-neutral-700 mt-1">Upcoming</div></div>
-                </div>
-            </div>
-        </div>
-    </main>
+      <button
+        class="btn"
+        onclick="openRegister()"
+      >
+        Get Started
+      </button>
 
-    <!-- Floating AI Coach Widget -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <button onclick="openModal('coachModal')" class="bg-[#171717] text-white px-5 py-3.5 rounded-2xl font-bold text-sm shadow-2xl flex items-center gap-2 hover:bg-neutral-800 transition cursor-pointer">
-            <i data-lucide="sparkles" class="w-4 h-4 text-yellow-400"></i> Ask Cozmetix
+    </div>
+
+    <button
+      class="mobile-menu"
+      onclick="toggleMobileMenu()"
+    >
+      ☰
+    </button>
+
+  </nav>
+
+</header>
+
+
+<main id="home">
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+
+<section class="hero">
+
+  <div class="container hero-grid">
+
+    <div>
+
+      <span class="badge">
+        AI POWERED SKINCARE
+      </span>
+
+      <h1>
+        Your skin.<br>
+        Decoded by AI.
+      </h1>
+
+      <p>
+        Fotoğrafını analiz et, kişisel cilt profilini oluştur,
+        sana özel bakım rutinini keşfet ve ürünlerini
+        yapay zekâ destekli bir platformdan yönet.
+      </p>
+
+      <div class="hero-buttons">
+
+        <button
+          class="btn"
+          onclick="openSkinScan()"
+        >
+          Start AI Skin Scan
         </button>
+
+        <a
+          href="#products"
+          class="btn btn-light"
+        >
+          Explore Products
+        </a>
+
+      </div>
+
+      <div class="hero-trust">
+
+        <span class="trust">✓ Personalized</span>
+        <span class="trust">✓ Privacy-first</span>
+        <span class="trust">✓ AI Coach</span>
+        <span class="trust">✓ Product Intelligence</span>
+
+      </div>
+
     </div>
 
-    <!-- Universal Modal Template -->
-    <div id="appModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
-        <div class="bg-[#FFFFFF] rounded-3xl max-w-lg w-full p-8 shadow-2xl relative text-left">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-neutral-400 hover:text-neutral-600 p-2 cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
-            <div id="modalContent"></div>
+
+    <div class="hero-visual">
+
+      <div class="face">
+
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+
+        <div class="nose"></div>
+
+        <div class="mouth"></div>
+
+      </div>
+
+      <div class="ai-result">
+
+        <div class="ai-result-title">
+          LIVE AI ANALYSIS
         </div>
+
+        <strong>
+          Skin profile ready
+        </strong>
+
+        <div class="progress">
+          <span style="width:89%"></span>
+        </div>
+
+        <div class="metrics">
+
+          <span class="metric">
+            Hydration 76
+          </span>
+
+          <span class="metric">
+            Texture 82
+          </span>
+
+          <span class="metric">
+            Redness 31
+          </span>
+
+          <span class="metric">
+            Confidence 89%
+          </span>
+
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-[#FFFFFF] border-t border-[#E8E5E0] py-12 mt-auto">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-left">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-[#171717] flex items-center justify-center text-white font-black text-sm">C</div>
-                <span class="font-bold text-[#171717]">COZMETIX PLATFORM</span>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     36 MODÜL
+============================================================ -->
+
+<section id="analysis">
+
+  <div class="container">
+
+    <div class="section-header">
+
+      <h2>
+        One platform.<br>
+        Every skin need.
+      </h2>
+
+      <p>
+        Cozmetix AI; kullanıcı hesabından cilt analizine,
+        ürün veritabanından kişisel rutinlere, AI Coach'tan
+        abonelik ve admin yönetimine kadar bütün platform
+        modüllerini tek bir mimaride birleştirir.
+      </p>
+
+    </div>
+
+
+    <div class="modules">
+
+      <div class="module">
+        <div class="module-icon">01</div>
+        <h3>Landing</h3>
+        <p>Global Cozmetix AI giriş ve ürün tanıtım deneyimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">02</div>
+        <h3>Register</h3>
+        <p>Yeni kullanıcı hesabı oluşturma.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">03</div>
+        <h3>Login</h3>
+        <p>JWT tabanlı güvenli kullanıcı girişi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">04</div>
+        <h3>Email Verification</h3>
+        <p>E-posta doğrulama akışı.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">05</div>
+        <h3>Onboarding</h3>
+        <p>Kullanıcıdan kişisel cilt ve bakım bilgileri alınır.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">06</div>
+        <h3>Skin Goals</h3>
+        <p>Kullanıcının cilt hedefleri belirlenir.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">07</div>
+        <h3>Camera Permission</h3>
+        <p>Kamera ve fotoğraf erişimi yönetimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">08</div>
+        <h3>AI Skin Scan</h3>
+        <p>Yüz fotoğrafı üzerinden AI cilt analizi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">09</div>
+        <h3>Scan Processing</h3>
+        <p>Asenkron AI analiz süreci ve durum takibi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">10</div>
+        <h3>Skin Snapshot</h3>
+        <p>Analiz sonucu özet görünümü.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">11</div>
+        <h3>Skin Profile</h3>
+        <p>Kullanıcının sürekli güncellenen cilt profili.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">12</div>
+        <h3>Dashboard</h3>
+        <p>Cozmetix kişisel kontrol merkezi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">13</div>
+        <h3>Morning Routine</h3>
+        <p>Sabah bakım rutini.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">14</div>
+        <h3>Evening Routine</h3>
+        <p>Akşam bakım rutini.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">15</div>
+        <h3>Product Search</h3>
+        <p>Ürün kataloğu içerisinde gelişmiş arama.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">16</div>
+        <h3>Product Detail</h3>
+        <p>Ürün, içerik, kullanım ve uyumluluk detayları.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">17</div>
+        <h3>Ingredient Detail</h3>
+        <p>İçerik maddelerinin detaylı açıklaması.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">18</div>
+        <h3>Product Scanner</h3>
+        <p>Barkod veya ürün görseli ile ürün bulma.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">19</div>
+        <h3>AI Coach</h3>
+        <p>Kişisel cilt bakım AI asistanı.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">20</div>
+        <h3>Progress</h3>
+        <p>Cilt gelişimini zaman içerisinde takip etme.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">21</div>
+        <h3>Progress Comparison</h3>
+        <p>Önceki ve sonraki taramaları karşılaştırma.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">22</div>
+        <h3>Notifications</h3>
+        <p>Rutin, analiz ve sistem bildirimleri.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">23</div>
+        <h3>Subscription</h3>
+        <p>Premium abonelik yönetimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">24</div>
+        <h3>Checkout</h3>
+        <p>Stripe ödeme akışı.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">25</div>
+        <h3>Profile</h3>
+        <p>Kullanıcı profil ve hesap yönetimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">26</div>
+        <h3>Settings</h3>
+        <p>Uygulama ve kullanıcı ayarları.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">27</div>
+        <h3>Privacy Center</h3>
+        <p>KVKK/GDPR uyumlu veri yönetimi altyapısı.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">28</div>
+        <h3>Data Export</h3>
+        <p>Kullanıcı verilerinin dışa aktarılması.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">29</div>
+        <h3>Delete Account</h3>
+        <p>Hesap ve kullanıcı verilerinin silinmesi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">30</div>
+        <h3>Help Center</h3>
+        <p>Kullanıcı destek ve yardım sistemi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">31</div>
+        <h3>Admin Dashboard</h3>
+        <p>Platform yönetim merkezi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">32</div>
+        <h3>Admin Users</h3>
+        <p>Kullanıcı ve hesap yönetimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">33</div>
+        <h3>Admin Products</h3>
+        <p>Ürün kataloğu yönetimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">34</div>
+        <h3>Admin Ingredients</h3>
+        <p>İçerik veritabanı yönetimi.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">35</div>
+        <h3>AI Control Center</h3>
+        <p>AI modelleri, promptlar ve güvenlik kontrolleri.</p>
+      </div>
+
+      <div class="module">
+        <div class="module-icon">36</div>
+        <h3>Analytics</h3>
+        <p>Kullanıcı, ürün, AI ve platform analizleri.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     DASHBOARD
+============================================================ -->
+
+<section class="dark-section">
+
+  <div class="container dashboard">
+
+    <div>
+
+      <span class="badge">
+        PERSONAL DASHBOARD
+      </span>
+
+      <h2>
+        Your skin.<br>
+        In one place.
+      </h2>
+
+      <p>
+        Cilt profilin, AI taramaların, rutinlerin,
+        ürünlerin, önerilerin ve ilerleme verilerin
+        tek dashboard üzerinde birleşir.
+      </p>
+
+      <button
+        class="btn btn-purple"
+        style="margin-top:25px"
+        onclick="showToast('Dashboard açılıyor...')"
+      >
+        Open Dashboard
+      </button>
+
+    </div>
+
+
+    <div class="dashboard-ui">
+
+      <div class="dashboard-header">
+
+        <strong>
+          Good morning
+        </strong>
+
+        <span>
+          Today
+        </span>
+
+      </div>
+
+
+      <div class="dashboard-grid">
+
+        <div class="score-card">
+
+          <small>Skin Score</small>
+
+          <div class="score">
+            82
+          </div>
+
+          <small>
+            +4 this month
+          </small>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <small>Routine</small>
+
+          <div class="score">
+            3/4
+          </div>
+
+          <small>
+            steps completed
+          </small>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <small>Hydration</small>
+
+          <div class="score">
+            76
+          </div>
+
+          <div class="progress">
+            <span style="width:76%"></span>
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <small>Texture</small>
+
+          <div class="score">
+            82
+          </div>
+
+          <div class="progress">
+            <span style="width:82%"></span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     ROUTINE
+============================================================ -->
+
+<section id="routine">
+
+  <div class="container">
+
+    <div class="section-header">
+
+      <h2>
+        A routine<br>
+        built for you.
+      </h2>
+
+      <p>
+        Cilt profilin ve hedeflerin doğrultusunda
+        kişiselleştirilmiş sabah ve akşam rutinlerini
+        yönet.
+      </p>
+
+    </div>
+
+
+    <div class="routine-grid">
+
+      <div class="routine-column">
+
+        <div class="routine-title">
+          Morning Routine
+        </div>
+
+        <div class="routine-step">
+
+          <div class="step-number">1</div>
+
+          <div>
+            <strong>Gentle Cleanser</strong>
+            <small>30 seconds</small>
+          </div>
+
+        </div>
+
+
+        <div class="routine-step">
+
+          <div class="step-number">2</div>
+
+          <div>
+            <strong>Hydrating Serum</strong>
+            <small>2 drops</small>
+          </div>
+
+        </div>
+
+
+        <div class="routine-step">
+
+          <div class="step-number">3</div>
+
+          <div>
+            <strong>Moisturizer</strong>
+            <small>1 layer</small>
+          </div>
+
+        </div>
+
+
+        <div class="routine-step">
+
+          <div class="step-number">4</div>
+
+          <div>
+            <strong>SPF 50</strong>
+            <small>Daily</small>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="routine-column">
+
+        <div class="routine-title">
+          Evening Routine
+        </div>
+
+        <div class="routine-step">
+
+          <div class="step-number">1</div>
+
+          <div>
+            <strong>Cleanser</strong>
+            <small>30 seconds</small>
+          </div>
+
+        </div>
+
+
+        <div class="routine-step">
+
+          <div class="step-number">2</div>
+
+          <div>
+            <strong>Barrier Serum</strong>
+            <small>2 drops</small>
+          </div>
+
+        </div>
+
+
+        <div class="routine-step">
+
+          <div class="step-number">3</div>
+
+          <div>
+            <strong>Barrier Cream</strong>
+            <small>1 layer</small>
+          </div>
+
+        </div>
+
+
+        <div class="routine-step">
+
+          <div class="step-number">4</div>
+
+          <div>
+            <strong>Weekly Treatment</strong>
+            <small>According to schedule</small>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PRODUCTS
+============================================================ -->
+
+<section id="products">
+
+  <div class="container">
+
+    <div class="section-header">
+
+      <h2>
+        Product<br>
+        intelligence.
+      </h2>
+
+      <p>
+        Ürünleri içerik, kategori, hedef ve kullanıcı
+        cilt profili bağlamında keşfet.
+      </p>
+
+    </div>
+
+
+    <div class="products">
+
+      <div class="product">
+
+        <div class="product-image">
+          ◯
+        </div>
+
+        <div class="product-content">
+
+          <small>Cleanser</small>
+
+          <h3>
+            Gentle Barrier Cleanser
+          </h3>
+
+          <div class="ingredients">
+            Ceramides • Glycerin
+          </div>
+
+          <div class="price">
+            $24
+          </div>
+
+          <button
+            class="btn btn-light"
+            style="width:100%;margin-top:15px"
+            onclick="openProduct('Gentle Barrier Cleanser')"
+          >
+            View Product
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="product">
+
+        <div class="product-image">
+          ◇
+        </div>
+
+        <div class="product-content">
+
+          <small>Serum</small>
+
+          <h3>
+            Hydra Balance Serum
+          </h3>
+
+          <div class="ingredients">
+            Hyaluronic Acid • Panthenol
+          </div>
+
+          <div class="price">
+            $32
+          </div>
+
+          <button
+            class="btn btn-light"
+            style="width:100%;margin-top:15px"
+            onclick="openProduct('Hydra Balance Serum')"
+          >
+            View Product
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="product">
+
+        <div class="product-image">
+          ○
+        </div>
+
+        <div class="product-content">
+
+          <small>Moisturizer</small>
+
+          <h3>
+            Daily Barrier Cream
+          </h3>
+
+          <div class="ingredients">
+            Ceramide • Squalane
+          </div>
+
+          <div class="price">
+            $29
+          </div>
+
+          <button
+            class="btn btn-light"
+            style="width:100%;margin-top:15px"
+            onclick="openProduct('Daily Barrier Cream')"
+          >
+            View Product
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="product">
+
+        <div class="product-image">
+          △
+        </div>
+
+        <div class="product-content">
+
+          <small>SPF</small>
+
+          <h3>
+            Invisible SPF 50
+          </h3>
+
+          <div class="ingredients">
+            Broad Spectrum • Lightweight
+          </div>
+
+          <div class="price">
+            $28
+          </div>
+
+          <button
+            class="btn btn-light"
+            style="width:100%;margin-top:15px"
+            onclick="openProduct('Invisible SPF 50')"
+          >
+            View Product
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PRODUCT SCANNER
+============================================================ -->
+
+<section>
+
+  <div class="container scanner">
+
+    <div>
+
+      <span class="badge">
+        PRODUCT SCANNER
+      </span>
+
+      <h2>
+        Know what's<br>
+        inside.
+      </h2>
+
+      <p>
+        Barkod veya ürün görseli üzerinden ürününü
+        bul, içerik listesini incele ve kendi cilt
+        profilinle ilişkisini değerlendir.
+      </p>
+
+      <button
+        class="btn"
+        onclick="openScanner()"
+      >
+        Scan Product
+      </button>
+
+    </div>
+
+
+    <div class="phone">
+
+      <div class="phone-screen">
+
+        <strong>
+          Product Scanner
+        </strong>
+
+        <div class="camera">
+          ▦
+        </div>
+
+        <p style="text-align:center;color:#777">
+          Align barcode or product label
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     AI COACH
+============================================================ -->
+
+<section id="coach">
+
+  <div class="container">
+
+    <div class="coach">
+
+      <div class="chat">
+
+        <div class="section-header">
+
+          <h2>
+            AI Coach.
+          </h2>
+
+          <p>
+            Cilt profilini, mevcut rutinini ve ürün
+            kataloğunu context olarak kullanabilen
+            kişisel skincare asistanı.
+          </p>
+
+        </div>
+
+
+        <div class="message ai">
+
+          <strong>
+            AI Coach
+          </strong>
+
+          <br>
+
+          Merhaba! Bugünkü skincare rutinin
+          hakkında nasıl yardımcı olabilirim?
+
+        </div>
+
+
+        <div class="message user">
+
+          Serumumu sabah mı akşam mı kullanmalıyım?
+
+        </div>
+
+
+        <div class="message ai">
+
+          <strong>
+            AI Coach
+          </strong>
+
+          <br>
+
+          Ürünün içeriklerini ve mevcut rutinindeki
+          diğer adımları birlikte değerlendirerek
+          kullanım bağlamı hakkında bilgi verebilirim.
+
+        </div>
+
+
+        <div class="chat-input">
+
+          <input
+            id="coachInput"
+            placeholder="Ask AI Coach..."
+          >
+
+          <button
+            class="btn"
+            onclick="sendCoachMessage()"
+          >
+            Send
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PROGRESS
+============================================================ -->
+
+<section id="progress">
+
+  <div class="container">
+
+    <div class="section-header">
+
+      <h2>
+        Progress you<br>
+        can see.
+      </h2>
+
+      <p>
+        Düzenli cilt taramaları ve check-in verileri
+        üzerinden zaman içindeki değişimleri takip et.
+      </p>
+
+    </div>
+
+
+    <div class="progress-grid">
+
+      <div class="progress-card">
+
+        <small>HYDRATION</small>
+
+        <div class="big-number">
+          76
+        </div>
+
+        <div class="progress">
+          <span style="width:76%"></span>
+        </div>
+
+        <p style="color:#777;margin-top:10px">
+          Previous: 72
+        </p>
+
+      </div>
+
+
+      <div class="progress-card">
+
+        <small>TEXTURE</small>
+
+        <div class="big-number">
+          82
+        </div>
+
+        <div class="progress">
+          <span style="width:82%"></span>
+        </div>
+
+        <p style="color:#777;margin-top:10px">
+          Previous: 78
+        </p>
+
+      </div>
+
+
+      <div class="progress-card">
+
+        <small>SKIN SCORE</small>
+
+        <div class="big-number">
+          82
+        </div>
+
+        <div class="progress">
+          <span style="width:82%"></span>
+        </div>
+
+        <p style="color:#777;margin-top:10px">
+          Previous: 78
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PRICING
+============================================================ -->
+
+<section id="pricing">
+
+  <div class="container">
+
+    <div class="section-header">
+
+      <h2>
+        Plans for every<br>
+        skin journey.
+      </h2>
+
+      <p>
+        Örnek abonelik yapısı. Gerçek ödeme akışında
+        Stripe Checkout Session backend tarafından
+        oluşturulmalıdır.
+      </p>
+
+    </div>
+
+
+    <div class="pricing">
+
+      <div class="plan">
+
+        <small>FREE</small>
+
+        <h3>
+          Explore
+        </h3>
+
+        <div class="plan-price">
+          $0
+        </div>
+
+        <ul>
+          <li>Basic skin profile</li>
+          <li>Product discovery</li>
+          <li>Routine basics</li>
+        </ul>
+
+        <button
+          class="btn btn-light"
+          onclick="openRegister()"
+        >
+          Create Account
+        </button>
+
+      </div>
+
+
+      <div class="plan featured">
+
+        <small>PREMIUM</small>
+
+        <h3>
+          Personal
+        </h3>
+
+        <div class="plan-price">
+          $9
+          <small>/month</small>
+        </div>
+
+        <ul>
+          <li>Advanced AI scans</li>
+          <li>Personalized routines</li>
+          <li>Progress comparison</li>
+          <li>AI Coach</li>
+        </ul>
+
+        <button
+          class="btn btn-purple"
+          onclick="openCheckout()"
+        >
+          Start Premium
+        </button>
+
+      </div>
+
+
+      <div class="plan">
+
+        <small>PRO</small>
+
+        <h3>
+          Advanced
+        </h3>
+
+        <div class="plan-price">
+          $19
+          <small>/month</small>
+        </div>
+
+        <ul>
+          <li>Priority analysis</li>
+          <li>Advanced product intelligence</li>
+          <li>Extended history</li>
+          <li>Premium AI features</li>
+        </ul>
+
+        <button
+          class="btn btn-light"
+          onclick="openCheckout()"
+        >
+          Choose Pro
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     ADMIN
+============================================================ -->
+
+<section>
+
+  <div class="container">
+
+    <div class="admin">
+
+      <div class="admin-header">
+
+        <strong>
+          Cozmetix Admin
+        </strong>
+
+        <span>
+          AI Control Center
+        </span>
+
+      </div>
+
+
+      <div class="admin-body">
+
+        <aside class="admin-sidebar">
+
+          <a href="#">Dashboard</a>
+          <a href="#">Users</a>
+          <a href="#">Products</a>
+          <a href="#">Ingredients</a>
+          <a href="#">Brands</a>
+          <a href="#">Content</a>
+          <a href="#">AI Models</a>
+          <a href="#">Analytics</a>
+          <a href="#">Audit Logs</a>
+          <a href="#">RBAC</a>
+
+        </aside>
+
+
+        <div class="admin-content">
+
+          <div class="stats">
+
+            <div class="stat">
+              <small>Users</small>
+              <strong>24,820</strong>
             </div>
-            <p class="text-sm text-neutral-500">© 2026 Cozmetix Inc. All rights reserved. AI-Powered Personal Skincare Platform.</p>
+
+            <div class="stat">
+              <small>Skin Scans</small>
+              <strong>68,412</strong>
+            </div>
+
+            <div class="stat">
+              <small>Products</small>
+              <strong>12,640</strong>
+            </div>
+
+            <div class="stat">
+              <small>AI Requests</small>
+              <strong>92.1K</strong>
+            </div>
+
+          </div>
+
+
+          <div style="margin-top:20px">
+
+            <span class="badge">
+              AI CONTROL CENTER
+            </span>
+
+            <h3 style="margin-top:12px">
+              Model & Prompt Management
+            </h3>
+
+            <p style="color:#777;margin-top:8px">
+              Vision model, recommendation engine,
+              safety classifier ve AI Coach prompt
+              versiyonları burada yönetilebilir.
+            </p>
+
+            <button
+              class="btn"
+              style="margin-top:15px"
+              onclick="showToast('AI Control Center')"
+            >
+              Open Control Center
+            </button>
+
+          </div>
+
         </div>
-    </footer>
 
-    <script>
-        lucide.createIcons();
+      </div>
 
-        function switchView(viewId) {
-            ['landing', 'scan', 'routine', 'discover', 'progress'].forEach(v => {
-                const el = document.getElementById('view-' + v);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById('view-' + viewId);
-            if(target) target.classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+
+<footer>
+
+  <div class="container">
+
+    <div class="footer-grid">
+
+      <div>
+
+        <div class="logo">
+          Cozmet<span>ix</span>
+          <small>AI</small>
+        </div>
+
+        <p style="color:#aaa;margin-top:15px;max-width:350px">
+          AI-powered skincare intelligence platform.
+          Analyze, understand and build a routine around
+          your skin.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <h4>Product</h4>
+
+        <a href="#analysis">AI Skin Analysis</a>
+        <a href="#routine">Routines</a>
+        <a href="#products">Products</a>
+        <a href="#coach">AI Coach</a>
+
+      </div>
+
+
+      <div>
+
+        <h4>Account</h4>
+
+        <a href="#" onclick="openLogin();return false">
+          Login
+        </a>
+
+        <a href="#" onclick="openRegister();return false">
+          Register
+        </a>
+
+        <a href="#pricing">
+          Subscription
+        </a>
+
+        <a href="#progress">
+          Progress
+        </a>
+
+      </div>
+
+
+      <div>
+
+        <h4>Privacy</h4>
+
+        <a href="#">
+          Privacy Center
+        </a>
+
+        <a href="#">
+          Data Export
+        </a>
+
+        <a href="#">
+          Delete Account
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div class="copyright">
+
+      © 2026 Cozmetix AI.
+      AI skin analysis is not a medical diagnosis.
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+<!-- ============================================================
+     MODAL
+============================================================ -->
+
+<div
+  class="modal"
+  id="modal"
+>
+
+  <div class="modal-box">
+
+    <button
+      class="modal-close"
+      onclick="closeModal()"
+    >
+      ×
+    </button>
+
+    <div id="modalContent"></div>
+
+  </div>
+
+</div>
+
+
+<div
+  class="toast"
+  id="toast"
+></div>
+
+
+<script>
+
+/*
+============================================================
+COZMETIX API CONFIGURATION
+============================================================
+
+Production'da:
+
+const API_BASE_URL = "https://api.cozmetix.com/api/v1";
+
+Development:
+
+const API_BASE_URL = "http://localhost:3000/api/v1";
+
+*/
+
+const API_BASE_URL =
+  window.COZMETIX_API_URL ||
+  "http://localhost:3000/api/v1";
+
+
+/*
+============================================================
+API HELPER
+============================================================
+*/
+
+async function apiRequest(
+  endpoint,
+  options = {}
+){
+
+  const token =
+    localStorage.getItem("cozmetix_access_token");
+
+  const headers = {
+    "Content-Type":"application/json",
+    ...(options.headers || {})
+  };
+
+  if(token){
+    headers.Authorization =
+      "Bearer " + token;
+  }
+
+  const response =
+    await fetch(
+      API_BASE_URL + endpoint,
+      {
+        ...options,
+        headers
+      }
+    );
+
+  if(!response.ok){
+
+    let error;
+
+    try{
+      error = await response.json();
+    }catch{
+      error = {
+        message:"API request failed"
+      };
+    }
+
+    throw new Error(
+      error?.error?.message ||
+      error?.message ||
+      "API request failed"
+    );
+
+  }
+
+  return response.json();
+
+}
+
+
+/*
+============================================================
+REGISTER
+============================================================
+*/
+
+function openRegister(){
+
+  document.getElementById("modalContent").innerHTML = `
+
+    <span class="badge">
+      CREATE ACCOUNT
+    </span>
+
+    <h2 style="margin-top:15px">
+      Start your skin journey.
+    </h2>
+
+    <form
+      class="form"
+      onsubmit="registerUser(event)"
+    >
+
+      <input
+        id="registerName"
+        type="text"
+        placeholder="Full name"
+        required
+      >
+
+      <input
+        id="registerEmail"
+        type="email"
+        placeholder="Email"
+        required
+      >
+
+      <input
+        id="registerPassword"
+        type="password"
+        placeholder="Password"
+        minlength="8"
+        required
+      >
+
+      <label>
+        <input
+          type="checkbox"
+          required
+        >
+        I agree to the Terms & Privacy Policy.
+      </label>
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        Create Account
+      </button>
+
+    </form>
+
+  `;
+
+  openModal();
+
+}
+
+
+/*
+============================================================
+REGISTER API
+============================================================
+*/
+
+async function registerUser(event){
+
+  event.preventDefault();
+
+  const payload = {
+
+    name:
+      document.getElementById(
+        "registerName"
+      ).value,
+
+    email:
+      document.getElementById(
+        "registerEmail"
+      ).value,
+
+    password:
+      document.getElementById(
+        "registerPassword"
+      ).value
+
+  };
+
+  try{
+
+    const result =
+      await apiRequest(
+        "/auth/register",
+        {
+          method:"POST",
+          body:JSON.stringify(payload)
         }
+      );
 
-        function runScanSimulation() {
-            const output = document.getElementById('scanOutput');
-            if(output) output.classList.remove('hidden');
-            alert('AI Skin Engine analyzed appearance metrics successfully!');
+    if(result?.data?.accessToken){
+
+      localStorage.setItem(
+        "cozmetix_access_token",
+        result.data.accessToken
+      );
+
+    }
+
+    closeModal();
+
+    showToast(
+      "Hesap başarıyla oluşturuldu."
+    );
+
+  }catch(error){
+
+    showToast(
+      error.message
+    );
+
+  }
+
+}
+
+
+/*
+============================================================
+LOGIN
+============================================================
+*/
+
+function openLogin(){
+
+  document.getElementById("modalContent").innerHTML = `
+
+    <span class="badge">
+      LOGIN
+    </span>
+
+    <h2 style="margin-top:15px">
+      Welcome back.
+    </h2>
+
+    <form
+      class="form"
+      onsubmit="loginUser(event)"
+    >
+
+      <input
+        id="loginEmail"
+        type="email"
+        placeholder="Email"
+        required
+      >
+
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="Password"
+        required
+      >
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        Login
+      </button>
+
+    </form>
+
+  `;
+
+  openModal();
+
+}
+
+
+/*
+============================================================
+LOGIN API
+============================================================
+*/
+
+async function loginUser(event){
+
+  event.preventDefault();
+
+  try{
+
+    const result =
+      await apiRequest(
+        "/auth/login",
+        {
+          method:"POST",
+          body:JSON.stringify({
+
+            email:
+              document.getElementById(
+                "loginEmail"
+              ).value,
+
+            password:
+              document.getElementById(
+                "loginPassword"
+              ).value
+
+          })
         }
+      );
 
-        function openModal(type) {
-            const modal = document.getElementById('appModal');
-            const content = document.getElementById('modalContent');
-            if(!modal || !content) return;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+    const token =
+      result?.data?.accessToken;
 
-            if (type === 'loginModal') {
-                content.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="text-center mb-4">
-                            <div class="w-10 h-10 rounded-xl bg-[#171717] flex items-center justify-center text-white font-black text-sm mx-auto mb-2">C</div>
-                            <h3 class="text-xl font-bold text-[#171717]">Sign In to Cozmetix</h3>
-                            <p class="text-sm text-neutral-500 mt-1">Access your skin profile and active routine</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-neutral-600 mb-1">Email Address</label>
-                            <input type="email" placeholder="name@domain.com" class="w-full bg-[#F8F7F4] border border-[#E8E5E0] px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-black">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-neutral-600 mb-1">Password</label>
-                            <input type="password" placeholder="••••••••" class="w-full bg-[#F8F7F4] border border-[#E8E5E0] px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-black">
-                        </div>
-                        <button onclick="alert('Signed in successfully!'); closeModal(); switchView('routine');" class="w-full bg-[#171717] text-white py-3 rounded-xl font-semibold hover:bg-neutral-800 transition shadow-md cursor-pointer">
-                            Continue
-                        </button>
-                    </div>
-                `;
-            } else if (type === 'coachModal') {
-                content.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 bg-[#DCD5EA]/60 text-neutral-900 rounded-xl flex items-center justify-center font-bold">AI</div>
-                            <h3 class="text-lg font-extrabold text-[#171717]">Ask Cozmetix</h3>
-                        </div>
-                        <div class="bg-[#F8F7F4] p-4 rounded-2xl text-xs text-neutral-600 h-40 overflow-y-auto space-y-2">
-                            <div><b>Cozmetix Coach:</b> Hello! How can I assist with your routine, ingredient compatibility, or skincare journey today?</div>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" placeholder="Ask about routines or ingredients..." class="flex-grow bg-[#F8F7F4] border border-[#E8E5E0] px-4 py-2.5 rounded-xl text-xs focus:outline-none">
-                            <button onclick="alert('AI Coach evaluated your skin profile and responded!')" class="bg-[#171717] text-white px-4 py-2.5 rounded-xl font-bold text-xs cursor-pointer">Send</button>
-                        </div>
-                    </div>
-                `;
-            }
-            lucide.createIcons();
+    if(token){
+
+      localStorage.setItem(
+        "cozmetix_access_token",
+        token
+      );
+
+    }
+
+    closeModal();
+
+    showToast(
+      "Giriş başarılı."
+    );
+
+  }catch(error){
+
+    showToast(
+      error.message
+    );
+
+  }
+
+}
+
+
+/*
+============================================================
+SKIN SCAN
+============================================================
+*/
+
+function openSkinScan(){
+
+  document.getElementById("modalContent").innerHTML = `
+
+    <span class="badge">
+      AI SKIN SCAN
+    </span>
+
+    <h2 style="margin-top:15px">
+      Analyze your skin.
+    </h2>
+
+    <p style="color:#777;margin-top:10px">
+      Fotoğrafını yükle ve AI skin analysis
+      pipeline'ını başlat.
+    </p>
+
+    <form
+      class="form"
+      onsubmit="startSkinScan(event)"
+    >
+
+      <input
+        id="skinPhoto"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        required
+      >
+
+      <label>
+        <input
+          id="skinConsent"
+          type="checkbox"
+          required
+        >
+        Fotoğrafımın cilt analizi amacıyla
+        işlenmesine izin veriyorum.
+      </label>
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        Upload & Analyze
+      </button>
+
+    </form>
+
+  `;
+
+  openModal();
+
+}
+
+
+/*
+============================================================
+SKIN SCAN API
+============================================================
+*/
+
+async function startSkinScan(event){
+
+  event.preventDefault();
+
+  const file =
+    document.getElementById(
+      "skinPhoto"
+    ).files[0];
+
+  if(!file){
+
+    showToast(
+      "Fotoğraf seçmelisin."
+    );
+
+    return;
+  }
+
+  try{
+
+    /*
+      Production flow:
+
+      1. POST /skin/scans
+      2. Backend creates scan
+      3. Backend creates S3 presigned URL
+      4. Browser uploads image to S3
+      5. complete-upload endpoint
+      6. BullMQ job
+      7. AI worker
+    */
+
+    const scan =
+      await apiRequest(
+        "/skin/scans",
+        {
+          method:"POST",
+          body:JSON.stringify({
+
+            fileName:file.name,
+
+            contentType:file.type,
+
+            fileSize:file.size
+
+          })
         }
+      );
 
-        function closeModal() {
-            const modal = document.getElementById('appModal');
-            if(modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
+    /*
+      Backend response example:
+
+      {
+        data:{
+          scanId,
+          uploadUrl
         }
-    </script>
+      }
+    */
+
+    const scanData =
+      scan.data;
+
+    if(scanData?.uploadUrl){
+
+      await fetch(
+        scanData.uploadUrl,
+        {
+          method:"PUT",
+          headers:{
+            "Content-Type":file.type
+          },
+          body:file
+        }
+      );
+
+    }
+
+    if(scanData?.scanId){
+
+      await apiRequest(
+        `/skin/scans/${scanData.scanId}/complete-upload`,
+        {
+          method:"POST"
+        }
+      );
+
+    }
+
+    closeModal();
+
+    showToast(
+      "AI skin analysis başlatıldı."
+    );
+
+  }catch(error){
+
+    showToast(
+      error.message
+    );
+
+  }
+
+}
+
+
+/*
+============================================================
+PRODUCT DETAIL
+============================================================
+*/
+
+function openProduct(name){
+
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
+
+    <span class="badge">
+      PRODUCT DETAIL
+    </span>
+
+    <h2 style="margin-top:15px">
+      ${name}
+    </h2>
+
+    <p style="color:#777;margin-top:15px">
+      Ürün detayları gerçek product database
+      API'sinden alınacaktır.
+    </p>
+
+    <div
+      style="
+        background:#f3f0eb;
+        padding:20px;
+        border-radius:18px;
+        margin-top:20px;
+      "
+    >
+
+      <strong>
+        Compatibility
+      </strong>
+
+      <div class="progress">
+        <span style="width:84%"></span>
+      </div>
+
+      <p style="margin-top:10px;color:#777">
+        Demo compatibility: 84/100
+      </p>
+
+    </div>
+
+    <button
+      class="btn"
+      style="margin-top:20px"
+      onclick="addProductToRoutine('${name}')"
+    >
+      Add to Routine
+    </button>
+
+  `;
+
+  openModal();
+
+}
+
+
+/*
+============================================================
+PRODUCT API
+============================================================
+*/
+
+async function loadProducts(){
+
+  try{
+
+    const result =
+      await apiRequest(
+        "/products"
+      );
+
+    console.log(
+      "Products:",
+      result
+    );
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+  }
+
+}
+
+
+/*
+============================================================
+ADD PRODUCT
+============================================================
+*/
+
+async function addProductToRoutine(name){
+
+  try{
+
+    await apiRequest(
+      "/routines",
+      {
+        method:"POST",
+        body:JSON.stringify({
+
+          productName:name
+
+        })
+      }
+    );
+
+    closeModal();
+
+    showToast(
+      "Product added to routine."
+    );
+
+  }catch(error){
+
+    /*
+      Backend henüz bağlı değilse
+      kullanıcı deneyimini bozmamak için
+      demo mesajı gösteriyoruz.
+    */
+
+    closeModal();
+
+    showToast(
+      "Routine action hazır."
+    );
+
+  }
+
+}
+
+
+/*
+============================================================
+PRODUCT SCANNER
+============================================================
+*/
+
+function openScanner(){
+
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
+
+    <span class="badge">
+      PRODUCT SCANNER
+    </span>
+
+    <h2 style="margin-top:15px">
+      Scan a product.
+    </h2>
+
+    <form
+      class="form"
+      onsubmit="scanProduct(event)"
+    >
+
+      <input
+        id="barcode"
+        placeholder="EAN / UPC barcode"
+        required
+      >
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        Find Product
+      </button>
+
+    </form>
+
+  `;
+
+  openModal();
+
+}
+
+
+async function scanProduct(event){
+
+  event.preventDefault();
+
+  const barcode =
+    document.getElementById(
+      "barcode"
+    ).value;
+
+  try{
+
+    const result =
+      await apiRequest(
+        "/products/scan",
+        {
+          method:"POST",
+          body:JSON.stringify({
+            barcode
+          })
+        }
+      );
+
+    console.log(
+      result
+    );
+
+    closeModal();
+
+    showToast(
+      "Product found."
+    );
+
+  }catch(error){
+
+    showToast(
+      error.message
+    );
+
+  }
+
+}
+
+
+/*
+============================================================
+AI COACH
+============================================================
+*/
+
+async function sendCoachMessage(){
+
+  const input =
+    document.getElementById(
+      "coachInput"
+    );
+
+  const message =
+    input.value.trim();
+
+  if(!message){
+    return;
+  }
+
+  const chat =
+    document.querySelector(
+      ".chat"
+    );
+
+  const userMessage =
+    document.createElement(
+      "div"
+    );
+
+  userMessage.className =
+    "message user";
+
+  userMessage.textContent =
+    message;
+
+  chat.insertBefore(
+    userMessage,
+    input.parentElement
+  );
+
+  input.value = "";
+
+  try{
+
+    /*
+      Production:
+
+      POST /ai/conversations
+      POST /ai/conversations/:id/messages
+    */
+
+    const result =
+      await apiRequest(
+        "/ai/conversations",
+        {
+          method:"POST",
+          body:JSON.stringify({})
+        }
+      );
+
+    console.log(
+      "AI conversation:",
+      result
+    );
+
+  }catch(error){
+
+    console.log(
+      "AI API:",
+      error.message
+    );
+
+  }
+
+  setTimeout(()=>{
+
+    const ai =
+      document.createElement(
+        "div"
+      );
+
+    ai.className =
+      "message ai";
+
+    ai.innerHTML = `
+      <strong>AI Coach</strong><br>
+      Sorunu aldım. Production AI bağlantısı
+      aktif olduğunda kullanıcı cilt profili,
+      mevcut rutin ve ürün kataloğu context'i
+      ile yanıt oluşturulacaktır.
+    `;
+
+    chat.insertBefore(
+      ai,
+      input.parentElement
+    );
+
+  },500);
+
+}
+
+
+/*
+============================================================
+STRIPE CHECKOUT
+============================================================
+*/
+
+async function openCheckout(){
+
+  try{
+
+    const result =
+      await apiRequest(
+        "/subscription/checkout",
+        {
+          method:"POST",
+          body:JSON.stringify({
+
+            plan:"premium"
+
+          })
+        }
+      );
+
+    if(result?.data?.checkoutUrl){
+
+      window.location.href =
+        result.data.checkoutUrl;
+
+      return;
+
+    }
+
+  }catch(error){
+
+    console.log(
+      error
+    );
+
+  }
+
+  showToast(
+    "Stripe checkout hazır."
+  );
+
+}
+
+
+/*
+============================================================
+MODAL
+============================================================
+*/
+
+function openModal(){
+
+  document
+    .getElementById("modal")
+    .classList
+    .add("active");
+
+}
+
+function closeModal(){
+
+  document
+    .getElementById("modal")
+    .classList
+    .remove("active");
+
+}
+
+
+/*
+============================================================
+TOAST
+============================================================
+*/
+
+function showToast(message){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+  toast.textContent =
+    message;
+
+  toast.classList.add(
+    "show"
+  );
+
+  setTimeout(()=>{
+
+    toast.classList.remove(
+      "show"
+    );
+
+  },3000);
+
+}
+
+
+/*
+============================================================
+MOBILE MENU
+============================================================
+*/
+
+function toggleMobileMenu(){
+
+  const nav =
+    document.querySelector(
+      ".nav-links"
+    );
+
+  if(
+    nav.style.display === "flex"
+  ){
+
+    nav.style.display =
+      "none";
+
+  }else{
+
+    nav.style.display =
+      "flex";
+
+    nav.style.position =
+      "absolute";
+
+    nav.style.top =
+      "76px";
+
+    nav.style.left =
+      "0";
+
+    nav.style.right =
+      "0";
+
+    nav.style.padding =
+      "20px";
+
+    nav.style.background =
+      "#fff";
+
+    nav.style.flexDirection =
+      "column";
+
+    nav.style.borderBottom =
+      "1px solid #e7e2db";
+
+  }
+
+}
+
+
+/*
+============================================================
+MODAL OUTSIDE CLICK
+============================================================
+*/
+
+document
+  .getElementById("modal")
+  .addEventListener(
+    "click",
+    function(event){
+
+      if(
+        event.target === this
+      ){
+
+        closeModal();
+
+      }
+
+    }
+  );
+
+
+/*
+============================================================
+INITIALIZATION
+============================================================
+*/
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    console.log(
+      "Cozmetix AI frontend initialized."
+    );
+
+    console.log(
+      "API:",
+      API_BASE_URL
+    );
+
+  }
+);
+
+</script>
+
 </body>
 </html>
