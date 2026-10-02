@@ -41,10 +41,10 @@
     const BRAND = { name: "COZMETIX", tagline: "Your Skin. Decoded." };
 
     // ============================================================
-    // EMAILJS CANLI ANAHTARLARINIZ (GÖMÜLÜ VE AKTİF)
+    // EMAILJS CANLI ANAHTARLARINIZ (DOĞRULANMIŞ & GÖMÜLÜ)
     // ============================================================
     const DEFAULT_EMAILJS_CONFIG = {
-      serviceId: "service_sv0apbl",
+      serviceId: "service_sw0apbl",
       templateId: "template_x6xh3tc",
       publicKey: "APA_rWtNWOeGS8yyn",
     };
@@ -217,10 +217,10 @@
     // ============================================================
     // GERÇEK EMAILJS GÖNDERİM FONKSİYONU
     // ============================================================
-    async function sendRealVerificationEmail({ toEmail, toName, code, emailJsConfig }) {
-      const service_id = (emailJsConfig?.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId).trim();
-      const template_id = (emailJsConfig?.templateId || DEFAULT_EMAILJS_CONFIG.templateId).trim();
-      const user_id = (emailJsConfig?.publicKey || DEFAULT_EMAILJS_CONFIG.publicKey).trim();
+    async function sendRealVerificationEmail({ toEmail, toName, code }) {
+      const service_id = DEFAULT_EMAILJS_CONFIG.serviceId.trim();
+      const template_id = DEFAULT_EMAILJS_CONFIG.templateId.trim();
+      const user_id = DEFAULT_EMAILJS_CONFIG.publicKey.trim();
 
       const templateParams = {
         to_email: toEmail,
@@ -363,7 +363,6 @@
       setUser,
       registeredUsers,
       setRegisteredUsers,
-      emailJsConfig,
       onFinish,
       notify,
     }) {
@@ -395,7 +394,6 @@
           toEmail: targetEmail,
           toName: targetName,
           code,
-          emailJsConfig,
         });
         setSendingEmail(false);
 
@@ -406,7 +404,6 @@
         }
       };
 
-      // 1. GİRİŞ YAP KONTROLÜ
       const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg("");
@@ -438,7 +435,6 @@
         onFinish("myskin");
       };
 
-      // 2. YENİ ÜYE KAYDI & GERÇEK E-POSTA GÖNDERİMİ
       const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         setErrorMsg("");
@@ -499,7 +495,6 @@
         await dispatchVerificationEmail(cleanEmail, name.trim(), generatedCode);
       };
 
-      // 3. 6 HANELİ KODU DOĞRULAMA
       const handleVerifyCode = (e) => {
         e.preventDefault();
         setErrorMsg("");
@@ -1011,20 +1006,6 @@
       const [detail, setDetail] = useState(null);
       const [toast, setToast] = useState(null);
 
-      // Gömülü EmailJS Yapılandırması
-      const [emailJsConfig, setEmailJsConfig] = useState(() => {
-        try {
-          const saved = JSON.parse(localStorage.getItem("cozmetix_emailjs_config_v2") || "{}");
-          return {
-            serviceId: saved.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId,
-            templateId: saved.templateId || DEFAULT_EMAILJS_CONFIG.templateId,
-            publicKey: saved.publicKey || DEFAULT_EMAILJS_CONFIG.publicKey,
-          };
-        } catch {
-          return DEFAULT_EMAILJS_CONFIG;
-        }
-      });
-
       const [registeredUsers, setRegisteredUsers] = useState(() => {
         try {
           const saved = localStorage.getItem("cozmetix_registered_users");
@@ -1183,7 +1164,6 @@
                 setUser={setUser}
                 registeredUsers={registeredUsers}
                 setRegisteredUsers={setRegisteredUsers}
-                emailJsConfig={emailJsConfig}
                 onFinish={(targetPage) => setPage(targetPage)}
                 notify={notify}
               />
@@ -1255,7 +1235,7 @@
               <div className="max-w-3xl mx-auto space-y-6">
                 <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
                   <div className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: C.accent2 }}>
-                    ✓ EMAILJS BAĞLANTISI AKTİF
+                    ✓ EMAILJS BAĞLANTISI AKTİF (service_sw0apbl)
                   </div>
                   <h3 className="text-xl font-serif font-bold mb-2">Kayıtlı Üyeler ({registeredUsers.length})</h3>
                   {registeredUsers.length === 0 ? (
