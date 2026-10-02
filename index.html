@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>COZMETIX — Cildiniz. Çözümlendi. (Your Skin. Decoded.)</title>
-  <meta name="description" content="AI destekli cilt analizi, INCI OCR etiket tarayıcı, içerik uyumluluk denetleyicisi, öncesi/sonrası kıyaslama ve Trendyol/Sephora/Amazon mağaza entegrasyonu." />
+  <title>COZMETIX — Cildiniz. Çözümlendi. | AI Dermokozmetik Platformu</title>
+  <meta name="description" content="AI destekli cilt analizi, INCI OCR etiket tarayıcı, içerik uyumluluk denetleyicisi ve Trendyol/Sephora/Amazon mağaza karşılaştırması." />
   <meta name="theme-color" content="#1C1A17" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -56,21 +56,42 @@
       amazon: { id: "amazon", name: "Amazon", commissionRate: 0.08, rateLabel: "%8 Komisyon", badgeColor: "#FF9900", partnerId: "cozmetix-21" },
     };
 
+    // ============================================================
+    // GERÇEK ÜRÜN KATALOĞU (Kendi ürünlerinizi Admin panelinden ekleyebilirsiniz)
+    // ============================================================
     const REAL_DERMO_CATALOG = [
       {
-        id: 101, brand: "THE ORDINARY", name: "Niacinamide 10% + Zinc 1% Pore Serum", category: "Serum", price: 11, score: 95,
-        ingredients: ["Niacinamide", "Zinc PCA", "Glycerin"],
-        why: ["T-bölgesi sebum ve parlama görünümünü dengeler", "Gözenek görünümünü sıkılaştırmaya yardımcı olur"],
+        id: 101,
+        brand: "LA ROCHE-POSAY",
+        name: "Effaclar Duo+M Leke ve Gözenek Karşıtı Bakım Kremi",
+        category: "Bakım / Krem",
+        price: 740,
+        score: 96,
+        image: "",
+        ingredients: ["Niacinamide", "Salicylic Acid (BHA)", "Phylobioma", "Procerad", "Zinc PCA"],
+        why: [
+          "T-bölgesi parlama, siyah nokta ve gözenek görünümünü hedefler",
+          "Sivilce sonrası kırmızı/kahverengi leke görünümünü azaltmaya yardımcı olur",
+        ],
         stores: {
-          trendyol: "https://www.trendyol.com/sr?q=The+Ordinary+Niacinamide+10+Zinc+1",
-          sephora: "https://www.sephora.com.tr/arama?q=The+Ordinary+Niacinamide",
-          amazon: "https://www.amazon.com.tr/s?k=The+Ordinary+Niacinamide+10+Zinc+1",
+          trendyol: "https://www.trendyol.com/sr?q=La+Roche+Posay+Effaclar+Duo+M",
+          sephora: "https://www.sephora.com.tr/arama?q=La+Roche+Posay+Effaclar",
+          amazon: "https://www.amazon.com.tr/s?k=La+Roche+Posay+Effaclar+Duo+M",
         },
       },
       {
-        id: 102, brand: "LA ROCHE-POSAY", name: "Cicaplast Baume B5+ Soothing Repair Balm", category: "Moisturizer", price: 22, score: 94,
-        ingredients: ["Panthenol (Vitamin B5) 5%", "Madecassoside (Centella)", "Zinc", "Shea Butter"],
-        why: ["Kızarıklık ve hassasiyet görünümünü yatıştırır", "Retinol sonrası bariyer onarımı sağlar"],
+        id: 102,
+        brand: "LA ROCHE-POSAY",
+        name: "Cicaplast Baume B5+ Onarıcı Bariyer Kremi",
+        category: "Nemlendirici",
+        price: 690,
+        score: 95,
+        image: "",
+        ingredients: ["Panthenol (Vitamin B5) %5", "Madecassoside (Centella)", "Tribioma", "Zinc"],
+        why: [
+          "Kızarıklık ve hassasiyet görünümünü hızla yatıştırır",
+          "Retinol veya asit sonrası cilt bariyerini onarmak için altın standart",
+        ],
         stores: {
           trendyol: "https://www.trendyol.com/sr?q=La+Roche+Posay+Cicaplast+Baume+B5",
           sephora: "https://www.sephora.com.tr/arama?q=Cicaplast+Baume+B5",
@@ -78,19 +99,37 @@
         },
       },
       {
-        id: 103, brand: "CERAVE", name: "Foaming Facial Cleanser (Ceramides + Niacinamide)", category: "Cleanser", price: 16, score: 93,
-        ingredients: ["Ceramide NP", "Ceramide AP", "Niacinamide", "Hyaluronic Acid"],
-        why: ["Cilt bariyerini kurutmadan fazla yağı arındırır", "3 temel seramid içerir"],
+        id: 103,
+        brand: "THE ORDINARY",
+        name: "Niacinamide 10% + Zinc 1% Gözenek Sıkılaştırıcı Serum",
+        category: "Serum",
+        price: 480,
+        score: 95,
+        image: "",
+        ingredients: ["Niacinamide %10", "Zinc PCA %1", "Glycerin"],
+        why: [
+          "T-bölgesi sebum ve parlama görünümünü dengeler",
+          "Gözenek görünümünü sıkılaştırmaya yardımcı olur",
+        ],
         stores: {
-          trendyol: "https://www.trendyol.com/sr?q=CeraVe+Kopuren+Temizleyici",
-          sephora: "https://www.sephora.com.tr/arama?q=CeraVe+Cleanser",
-          amazon: "https://www.amazon.com.tr/s?k=CeraVe+Foaming+Cleanser",
+          trendyol: "https://www.trendyol.com/sr?q=The+Ordinary+Niacinamide+10+Zinc+1",
+          sephora: "https://www.sephora.com.tr/arama?q=The+Ordinary+Niacinamide",
+          amazon: "https://www.amazon.com.tr/s?k=The+Ordinary+Niacinamide+10+Zinc+1",
         },
       },
       {
-        id: 104, brand: "LA ROCHE-POSAY", name: "Anthelios UVMune 400 Invisible Fluid SPF 50+", category: "Sunscreen", price: 26, score: 96,
-        ingredients: ["Mexoryl 400", "SPF 50", "Glycerin", "Tocopherol"],
-        why: ["Leke görünümüne karşı ultra uzun UVA koruması", "Beyaz iz bırakmayan akışkan doku"],
+        id: 104,
+        brand: "LA ROCHE-POSAY",
+        name: "Anthelios UVMune 400 Invisible Fluid SPF 50+ Güneş Kremi",
+        category: "Güneş Kremi",
+        price: 820,
+        score: 97,
+        image: "",
+        ingredients: ["Mexoryl 400", "SPF 50+", "Glycerin", "Tocopherol (Vitamin E)"],
+        why: [
+          "Leke görünümüne karşı ultra uzun UVA koruması",
+          "Beyaz iz bırakmayan su gibi akışkan doku",
+        ],
         stores: {
           trendyol: "https://www.trendyol.com/sr?q=La+Roche+Posay+Anthelios+UVMune+400",
           sephora: "https://www.sephora.com.tr/arama?q=Anthelios+UVMune",
@@ -98,9 +137,37 @@
         },
       },
       {
-        id: 105, brand: "PAULA'S CHOICE", name: "Skin Perfecting 2% BHA Liquid Exfoliant", category: "Treatment", price: 35, score: 91,
-        ingredients: ["Salicylic Acid (BHA) 2%", "Green Tea Extract"],
-        why: ["Gözenek içindeki tıkanıklıkları ve pürüzlü dokuyu hedefler", "Haftada 2–3 akşam kullanıma uygun"],
+        id: 105,
+        brand: "CERAVE",
+        name: "Köpüren Yüz Temizleme Jeli (Normal ve Yağlı Ciltler)",
+        category: "Temizleyici",
+        price: 540,
+        score: 93,
+        image: "",
+        ingredients: ["Ceramide NP", "Ceramide AP", "Niacinamide", "Hyaluronic Acid"],
+        why: [
+          "Cilt bariyerini kurutmadan fazla yağı ve güneş kremini arındırır",
+          "3 temel seramid ve Niacinamide içerir",
+        ],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=CeraVe+Kopuren+Temizleyici",
+          sephora: "https://www.sephora.com.tr/arama?q=CeraVe+Cleanser",
+          amazon: "https://www.amazon.com.tr/s?k=CeraVe+Foaming+Cleanser",
+        },
+      },
+      {
+        id: 106,
+        brand: "PAULA'S CHOICE",
+        name: "Skin Perfecting 2% BHA Liquid Exfoliant Tonik",
+        category: "Peeling / Tonik",
+        price: 1350,
+        score: 91,
+        image: "",
+        ingredients: ["Salicylic Acid (BHA) %2", "Green Tea Extract", "Methylpropanediol"],
+        why: [
+          "Gözenek içindeki tıkanıklıkları ve pürüzlü dokuyu hedefler",
+          "Haftada 2–3 akşam kullanıma uygun",
+        ],
         sponsored: true,
         stores: {
           trendyol: "https://www.trendyol.com/sr?q=Paulas+Choice+2+BHA+Liquid+Exfoliant",
@@ -109,44 +176,72 @@
         },
       },
       {
-        id: 106, brand: "CERAVE", name: "Resurfacing Retinol Serum", category: "Treatment", price: 24, score: 89,
-        ingredients: ["Encapsulated Retinol", "Ceramide NP", "Niacinamide"],
-        why: ["Kapsüllenmiş Retinol ile tahriş etmeden doku görünümünü yeniler"],
+        id: 107,
+        brand: "COSRX",
+        name: "Advanced Snail 96 Mucin Power Essence",
+        category: "Serum",
+        price: 680,
+        score: 92,
+        image: "",
+        ingredients: ["Snail Secretion Filtrate %96", "Sodium Hyaluronate", "Panthenol", "Allantoin"],
+        why: [
+          "Cilt dokusunu dolgunlaştırır ve yoğun nem hapseder",
+          "Tüm aktiflerle (Retinol, C Vitamini, BHA) çakışmadan katmanlanabilir",
+        ],
         stores: {
-          trendyol: "https://www.trendyol.com/sr?q=CeraVe+Resurfacing+Retinol+Serum",
-          sephora: "https://www.sephora.com.tr/arama?q=CeraVe+Retinol",
-          amazon: "https://www.amazon.com.tr/s?k=CeraVe+Retinol+Serum",
+          trendyol: "https://www.trendyol.com/sr?q=Cosrx+Advanced+Snail+96+Mucin",
+          sephora: "https://www.sephora.com.tr/arama?q=Cosrx+Snail",
+          amazon: "https://www.amazon.com.tr/s?k=Cosrx+Advanced+Snail+96+Mucin",
+        },
+      },
+      {
+        id: 108,
+        brand: "BEAUTY OF JOSEON",
+        name: "Relief Sun : Rice + Probiotics SPF 50+ PA++++",
+        category: "Güneş Kremi",
+        price: 640,
+        score: 94,
+        image: "",
+        ingredients: ["Pirinç Özü %30", "Niacinamide", "Probiotics", "SPF 50+"],
+        why: [
+          "Nemlendirici krem konforunda sıfır beyaz iz bırakan Kore güneş kremi",
+          "Pirinç özü ve Niacinamide ile ton eşitliğini destekler",
+        ],
+        stores: {
+          trendyol: "https://www.trendyol.com/sr?q=Beauty+of+Joseon+Relief+Sun+SPF50",
+          sephora: "https://www.sephora.com.tr/arama?q=Beauty+of+Joseon",
+          amazon: "https://www.amazon.com.tr/s?k=Beauty+of+Joseon+Relief+Sun",
         },
       },
     ];
 
     const INITIAL_AFFILIATE_CLICKS = [
-      { id: 1, brand: "LA ROCHE-POSAY", name: "Anthelios UVMune 400 SPF 50+", merchant: "Trendyol", merchantKey: "trendyol", commission: 2.60, time: "Az önce" },
-      { id: 2, brand: "PAULA'S CHOICE", name: "2% BHA Liquid Exfoliant", merchant: "Sephora", merchantKey: "sephora", commission: 4.20, time: "12 dk önce" },
-      { id: 3, brand: "CERAVE", name: "Foaming Facial Cleanser", merchant: "Amazon", merchantKey: "amazon", commission: 1.28, time: "28 dk önce" },
+      { id: 1, brand: "LA ROCHE-POSAY", name: "Anthelios UVMune 400 SPF 50+", merchant: "Trendyol", merchantKey: "trendyol", commission: 82, time: "Az önce" },
+      { id: 2, brand: "PAULA'S CHOICE", name: "2% BHA Liquid Exfoliant", merchant: "Sephora", merchantKey: "sephora", commission: 162, time: "12 dk önce" },
+      { id: 3, brand: "CERAVE", name: "Köpüren Yüz Temizleme Jeli", merchant: "Amazon", merchantKey: "amazon", commission: 43, time: "28 dk önce" },
     ];
 
     const INITIAL_SKIN_METRICS = [
-      { key: "Oiliness", value: 62, focus: false },
-      { key: "Dryness", value: 31, focus: false },
-      { key: "Texture", value: 44, focus: true },
-      { key: "Pore Visibility", value: 48, focus: false },
-      { key: "Uneven Tone", value: 51, focus: true },
-      { key: "Visible Redness", value: 27, focus: false },
+      { key: "Yağlılık (Oiliness)", value: 62, focus: false },
+      { key: "Kuruluk (Dryness)", value: 31, focus: false },
+      { key: "Doku Pürüzü (Texture)", value: 44, focus: true },
+      { key: "Gözenek (Pore Visibility)", value: 48, focus: false },
+      { key: "Ton Eşitsizliği (Uneven Tone)", value: 51, focus: true },
+      { key: "Kızarıklık (Redness)", value: 27, focus: false },
     ];
 
     const INITIAL_ROUTINE = {
       Morning: [
-        { step: "Cleanser", note: "Gentle, low-pH gel to avoid stripping the T-zone.", freq: "Daily" },
-        { step: "Vitamin C / Hyaluronic Serum", note: "Supports a brighter, more hydrated tone.", freq: "Daily" },
-        { step: "Moisturizer", note: "Lightweight barrier support for combination skin.", freq: "Daily" },
-        { step: "SPF 50", note: "Non-negotiable photoprotection.", freq: "Daily" },
+        { step: "Temizleyici (Cleanser)", note: "T-bölgesini kurutmayan düşük pH yüz yıkama jeli.", freq: "Her gün" },
+        { step: "Nem / C Vitamini Serumu", note: "Daha aydınlık ve nemli cilt görünümü sağlar.", freq: "Her gün" },
+        { step: "Nemlendirici", note: "Karma ciltlere uygun su bazlı bariyer desteği.", freq: "Her gün" },
+        { step: "Güneş Kremi (SPF 50+)", note: "Leke görünümünü önlemek için her sabah zorunlu adım.", freq: "Her gün" },
       ],
       Evening: [
-        { step: "Cleanser", note: "Double cleanse on makeup/sunscreen days.", freq: "Daily" },
-        { step: "Niacinamide 10% Serum", note: "Targets visible pores and uneven tone appearance.", freq: "Daily" },
-        { step: "Retinol / BHA Treatment", note: "Smoother-looking texture support. Start 2×/week.", freq: "2–3×/week" },
-        { step: "Cicaplast / Ceramide Balm", note: "Barrier-support formula with ceramides & B5.", freq: "Daily" },
+        { step: "Çift Aşamalı Temizleyici", note: "Güneş kremi ve makyaj kalıntılarını arındırır.", freq: "Her gün" },
+        { step: "Niacinamide %10 Serum", note: "Gözenek ve ton eşitsizliği görünümünü hedefler.", freq: "Her gün" },
+        { step: "Retinol / BHA Gece Bakımı", note: "Doku yenileyici bakım (Haftada 2–3 gece).", freq: "Haftada 2–3" },
+        { step: "Cicaplast / Seramid Kremi", note: "Gece boyu cilt bariyerini onarır ve nemi kilitler.", freq: "Her gün" },
       ],
     };
 
@@ -177,12 +272,12 @@
           <div className="h-2 rounded-full overflow-hidden" style={{ background: C.line }}>
             <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value}%`, background: focus ? C.accent : C.gold }} />
           </div>
-          {focus && <div className="mt-2 text-[10px] uppercase tracking-widest" style={{ color: C.accent }}>Focus area</div>}
+          {focus && <div className="mt-2 text-[10px] uppercase tracking-widest" style={{ color: C.accent }}>Odak Alanı</div>}
         </div>
       );
     }
 
-    // Doğrudan Üzerinde Trendyol, Sephora ve Amazon Butonları Bulunan Ürün Kartı
+    // Gerçek Fotoğraf veya Şişe İllüstrasyonu Gösteren Ürün Kartı
     function ProductCard({ p, onOpen, onMerchantClick }) {
       return (
         <div
@@ -190,32 +285,35 @@
           style={{ background: C.card, border: `1px solid ${C.line}` }}
         >
           <div onClick={() => onOpen(p)} className="cursor-pointer">
-            <div className="h-28 flex items-center justify-center relative" style={{ background: `linear-gradient(135deg, ${C.bg}, #EFE7DE)` }}>
-              <div className="w-14 h-20 rounded-lg flex items-end justify-center pb-2 shadow-md px-1" style={{ background: "#E4E0D7" }}>
-                <span className="text-[7px] tracking-widest font-bold truncate" style={{ color: C.ink }}>{p.brand}</span>
-              </div>
+            <div className="h-40 flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${C.bg}, #EFE7DE)` }}>
+              {p.image ? (
+                <img src={p.image} alt={p.name} className="w-full h-full object-contain p-3 bg-white" />
+              ) : (
+                <div className="w-16 h-24 rounded-xl flex items-end justify-center pb-2 shadow-md px-1" style={{ background: "#E4E0D7", border: "1px solid rgba(0,0,0,0.08)" }}>
+                  <span className="text-[8px] tracking-widest font-bold truncate" style={{ color: C.ink }}>{p.brand}</span>
+                </div>
+              )}
               {p.sponsored && (
-                <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full" style={{ background: C.gold, color: "#fff" }}>
-                  Sponsored
+                <span className="absolute top-2 right-2 text-[10px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: C.gold, color: "#fff" }}>
+                  Öne Çıkan
                 </span>
               )}
             </div>
             <div className="p-4 pb-2">
               <div className="flex justify-between items-start gap-2">
                 <div>
-                  <div className="text-[10px] uppercase tracking-widest" style={{ color: C.muted }}>{p.brand}</div>
-                  <div className="font-medium leading-snug text-sm">{p.name}</div>
+                  <div className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: C.muted }}>{p.brand}</div>
+                  <div className="font-medium leading-snug text-sm mt-0.5">{p.name}</div>
                 </div>
                 <Score score={p.score} />
               </div>
-              <div className="mt-2 flex justify-between items-center">
-                <span className="text-xs" style={{ color: C.muted }}>{p.category}</span>
-                <span className="font-semibold text-sm">${p.price}</span>
+              <div className="mt-2.5 flex justify-between items-center">
+                <span className="text-xs px-2.5 py-0.5 rounded-full" style={{ background: C.bg, color: C.muted }}>{p.category}</span>
+                <span className="font-bold text-sm" style={{ color: C.ink }}>₺{p.price}</span>
               </div>
             </div>
           </div>
 
-          {/* Kartın Altında Doğrudan Trendyol / Sephora / Amazon Butonları */}
           <div className="px-4 pb-4 pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
             <div className="text-[9px] uppercase tracking-wider mb-1.5" style={{ color: C.muted }}>
               Mağazada Gör & Satın Al:
@@ -241,8 +339,7 @@
       );
     }
 
-    function LiveCameraCapture({ onCapture, lang = "tr" }) {
-      const tr = lang === "tr";
+    function LiveCameraCapture({ onCapture }) {
       const videoRef = useRef(null);
       const streamRef = useRef(null);
       const [cameraActive, setCameraActive] = useState(false);
@@ -264,11 +361,7 @@
             }
           }, 60);
         } catch {
-          setCameraError(
-            tr
-              ? "Kamera izni kapalı. '⚡ Hızlı Demo Analiz' butonunu kullanabilirsiniz."
-              : "Camera permission denied. Use 'Instant Demo Scan'."
-          );
+          setCameraError("Kamera izni kapalı. '⚡ Hızlı Demo Analiz' butonunu kullanabilirsiniz.");
         }
       };
 
@@ -282,11 +375,6 @@
 
       useEffect(() => () => stopCamera(), []);
 
-      const captureFrame = () => {
-        stopCamera();
-        onCapture(null);
-      };
-
       return (
         <div>
           {!cameraActive ? (
@@ -297,21 +385,17 @@
                 style={{ borderColor: C.accent }}
               >
                 <div className="w-20 h-28 rounded-full mb-2" style={{ background: "linear-gradient(160deg,#E7D3C3,#D9B8A5)" }} />
-                <span className="text-[11px] font-medium px-4" style={{ color: C.ink }}>
-                  {tr ? "Canlı Kamerayı Aç" : "Start Live Camera"}
-                </span>
+                <span className="text-[11px] font-medium px-4" style={{ color: C.ink }}>Canlı Kamerayı Aç</span>
               </div>
               {cameraError && (
-                <div className="text-xs p-3 rounded-xl mb-4" style={{ background: "#FDECEC", color: C.accent }}>
-                  {cameraError}
-                </div>
+                <div className="text-xs p-3 rounded-xl mb-4" style={{ background: "#FDECEC", color: C.accent }}>{cameraError}</div>
               )}
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={startCamera} className="py-3 rounded-full text-xs font-medium" style={{ background: C.ink, color: "#FFFDF9" }}>
-                  {tr ? "📷 Kamera Aç" : "📷 Camera"}
+                  📷 Kamera Aç
                 </button>
                 <button onClick={() => onCapture(null)} className="py-3 rounded-full text-xs font-medium" style={{ background: C.accent, color: "#fff" }}>
-                  {tr ? "⚡ Hızlı Demo Analiz" : "⚡ Instant Demo Scan"}
+                  ⚡ Hızlı Demo Analiz
                 </button>
               </div>
             </div>
@@ -321,11 +405,9 @@
                 <video ref={videoRef} playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
               </div>
               <div className="flex gap-2">
-                <button onClick={stopCamera} className="px-4 py-3 rounded-full text-xs" style={{ border: `1px solid ${C.line}` }}>
-                  {tr ? "İptal" : "Cancel"}
-                </button>
-                <button onClick={captureFrame} className="flex-1 py-3 rounded-full text-sm font-medium" style={{ background: C.ink, color: "#FFFDF9" }}>
-                  {tr ? "Fotoğrafı Çek & Analiz Et" : "Capture & Analyze"}
+                <button onClick={stopCamera} className="px-4 py-3 rounded-full text-xs" style={{ border: `1px solid ${C.line}` }}>İptal</button>
+                <button onClick={() => { stopCamera(); onCapture(null); }} className="flex-1 py-3 rounded-full text-sm font-medium" style={{ background: C.ink, color: "#FFFDF9" }}>
+                  Fotoğrafı Çek & Analiz Et
                 </button>
               </div>
             </div>
@@ -337,19 +419,46 @@
     function App() {
       const [page, setPage] = useState("home");
       const [detail, setDetail] = useState(null);
-      const [lang, setLang] = useState("tr");
       const [toast, setToast] = useState(null);
       const [isPremium, setIsPremium] = useState(false);
-      const [isAdmin, setIsAdmin] = useState(true);
-      const [products] = useState(REAL_DERMO_CATALOG);
+
+      // Ürün Kataloğu (Tarayıcı Hafızasında Kalıcıdır)
+      const [products, setProducts] = useState(() => {
+        try {
+          const saved = localStorage.getItem("cozmetix_custom_catalog_v2");
+          if (saved) return JSON.parse(saved);
+        } catch {}
+        return REAL_DERMO_CATALOG;
+      });
+
+      useEffect(() => {
+        try {
+          localStorage.setItem("cozmetix_custom_catalog_v2", JSON.stringify(products));
+        } catch {}
+      }, [products]);
+
+      // Admin Yeni Ürün Ekleme Formu State'i
+      const [newProd, setNewProd] = useState({
+        brand: "",
+        name: "",
+        category: "Serum",
+        price: "650",
+        score: "94",
+        image: "",
+        ingredients: "Niacinamide, Hyaluronic Acid, Panthenol",
+        why: "Cilt bariyerini destekler, Gözenek görünümünü dengeler",
+        trendyol: "",
+        sephora: "",
+        amazon: "",
+      });
+
       const [affiliateClicks, setAffiliateClicks] = useState(INITIAL_AFFILIATE_CLICKS);
       const [sliderPos, setSliderPos] = useState(50);
-
       const [inciInput, setInciInput] = useState("Aqua, Glycerin, Panthenol, Madecassoside, Ceramide NP, Niacinamide");
       const [inciScore, setInciScore] = useState(95);
       const [compA, setCompA] = useState(105);
       const [compB, setCompB] = useState(106);
-      const [completedSteps, setCompletedSteps] = useState(["Cleanser", "SPF 50"]);
+      const [completedSteps, setCompletedSteps] = useState(["Temizleyici (Cleanser)", "Güneş Kremi (SPF 50+)"]);
 
       const [chatMsgs, setChatMsgs] = useState([
         {
@@ -359,16 +468,14 @@
       ]);
       const [chatInput, setChatInput] = useState("");
 
-      const tr = lang === "tr";
-
       const notify = (msg) => {
         setToast(msg);
-        setTimeout(() => setToast(null), 3200);
+        setTimeout(() => setToast(null), 3500);
       };
 
       const handleMerchantClick = (product, merchantKey) => {
         const m = MERCHANTS[merchantKey];
-        const comm = +(product.price * m.commissionRate).toFixed(2);
+        const comm = Math.round(product.price * m.commissionRate);
         setAffiliateClicks((prev) => [
           {
             id: Date.now(),
@@ -381,29 +488,81 @@
           },
           ...prev,
         ]);
-        notify(`${m.name} mağazasına yönlendiriliyor (+$${comm} komisyon Admin paneline eklendi)`);
-        window.open(product.stores?.[merchantKey] || "https://www.trendyol.com", "_blank", "noopener,noreferrer");
+        notify(`${m.name} mağazasına yönlendiriliyor (+₺${comm} komisyon Admin paneline eklendi)`);
+        const targetUrl =
+          product.stores?.[merchantKey] ||
+          `https://www.trendyol.com/sr?q=${encodeURIComponent(product.brand + " " + product.name)}`;
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+      };
+
+      // Admin Panelinden Yeni Gerçek Ürün Ekleme Fonksiyonu
+      const handleAddRealProduct = () => {
+        if (!newProd.brand.trim() || !newProd.name.trim()) {
+          notify("Lütfen en azından Marka ve Ürün Adı alanlarını doldurun!");
+          return;
+        }
+        const q = encodeURIComponent(newProd.brand.trim() + " " + newProd.name.trim());
+        const created = {
+          id: Date.now(),
+          brand: newProd.brand.trim().toUpperCase(),
+          name: newProd.name.trim(),
+          category: newProd.category,
+          price: Number(newProd.price) || 500,
+          score: Math.min(99, Math.max(50, Number(newProd.score) || 92)),
+          image: newProd.image.trim(),
+          ingredients: newProd.ingredients.split(",").map((s) => s.trim()).filter(Boolean),
+          why: newProd.why.split(",").map((s) => s.trim()).filter(Boolean),
+          stores: {
+            trendyol: newProd.trendyol.trim() || `https://www.trendyol.com/sr?q=${q}`,
+            sephora: newProd.sephora.trim() || `https://www.sephora.com.tr/arama?q=${q}`,
+            amazon: newProd.amazon.trim() || `https://www.amazon.com.tr/s?k=${q}`,
+          },
+        };
+
+        setProducts((prev) => [created, ...prev]);
+        setNewProd({
+          brand: "",
+          name: "",
+          category: "Serum",
+          price: "650",
+          score: "94",
+          image: "",
+          ingredients: "Niacinamide, Hyaluronic Acid, Panthenol",
+          why: "Cilt bariyerini destekler, Gözenek görünümünü dengeler",
+          trendyol: "",
+          sephora: "",
+          amazon: "",
+        });
+        notify(`✓ "${created.brand} - ${created.name}" sitenize eklendi!`);
+      };
+
+      const handleDeleteProduct = (id) => {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        notify("Ürün katalogdan silindi.");
+      };
+
+      const copyCatalogForGithub = () => {
+        const codeString = `const REAL_DERMO_CATALOG = ${JSON.stringify(products, null, 2)};`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(codeString);
+          notify("📋 Güncel ürün kataloğu kopyalandı! GitHub index.html içindeki REAL_DERMO_CATALOG kısmına yapıştırabilirsiniz.");
+        }
       };
 
       const NAV = [
-        { key: "home", label: tr ? "Ana Sayfa" : "Home" },
-        { key: "products", label: tr ? "🛍️ Ürünler (Trendyol/Sephora/Amazon)" : "🛍️ Products & Stores" },
-        { key: "analyze", label: tr ? "Analiz" : "Analyze" },
-        { key: "results", label: tr ? "Profil" : "Profile" },
-        { key: "myskin", label: tr ? "Cildim" : "My Skin" },
-        { key: "chat", label: tr ? "Danışman" : "Advisor" },
-        { key: "report", label: tr ? "Rapor (PDF)" : "Report" },
-        { key: "premium", label: "Cozmetix+" },
-        ...(isAdmin
-          ? [
-              { key: "admin", label: "🔒 Yönetim (Affiliate)" },
-              { key: "brand", label: "🔒 B2B API" },
-            ]
-          : []),
+        { key: "home", label: "Ana Sayfa" },
+        { key: "products", label: `🛍️ Ürünler (${products.length})` },
+        { key: "admin", label: "➕ Ürün Ekle & Yönetim" },
+        { key: "analyze", label: "Analiz" },
+        { key: "results", label: "Profil" },
+        { key: "myskin", label: "Cildim" },
+        { key: "chat", label: "Danışman" },
+        { key: "report", label: "Rapor (PDF)" },
+        { key: "brand", label: "B2B API" },
       ];
 
-      const isConflict = (compA === 105 && compB === 106) || (compA === 106 && compB === 105);
-      const totalCommission = affiliateClicks.reduce((acc, c) => acc + c.commission, 0).toFixed(2);
+      const isConflict = (compA === 106 && compB === 101) || (compA === 101 && compB === 106);
+      const totalCommission = affiliateClicks.reduce((acc, c) => acc + c.commission, 0);
       const countByStore = {
         trendyol: affiliateClicks.filter((c) => c.merchantKey === "trendyol").length,
         sephora: affiliateClicks.filter((c) => c.merchantKey === "sephora").length,
@@ -413,7 +572,7 @@
       return (
         <div className="min-h-screen flex flex-col">
           {toast && (
-            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-medium shadow-xl" style={{ background: C.ink, color: "#FFFDF9" }}>
+            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-5 py-3 rounded-full text-xs font-medium shadow-2xl max-w-md text-center" style={{ background: C.ink, color: "#FFFDF9" }}>
               {toast}
             </div>
           )}
@@ -424,32 +583,19 @@
               <button onClick={() => setPage("home")} className="font-serif text-xl font-bold tracking-widest">
                 {BRAND.name}
               </button>
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: isPremium ? C.gold : C.line, color: isPremium ? "#fff" : C.ink }}>
-                {isPremium ? "COZMETIX+" : "FREE"}
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: C.gold, color: "#fff" }}>
+                LIVE
               </span>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage("admin")}
-                className="px-3 py-1 rounded-full text-xs font-medium"
-                style={{ background: C.accent2, color: "#fff" }}
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition hover:opacity-90"
+                style={{ background: C.accent, color: "#fff" }}
               >
-                🔓 Admin Açık
+                ➕ Yeni Ürün Ekle (Admin)
               </button>
-
-              <div className="flex rounded-full p-0.5" style={{ border: `1px solid ${C.line}`, background: C.card }}>
-                {["tr", "en"].map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className="px-2.5 py-1 rounded-full text-xs uppercase"
-                    style={{ background: lang === l ? C.ink : "transparent", color: lang === l ? "#FFFDF9" : C.muted }}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -488,48 +634,234 @@
                       Cildimi Analiz Et
                     </button>
                     <button onClick={() => setPage("products")} className="px-6 py-3 rounded-full text-sm font-semibold" style={{ background: C.accent, color: "#FFFDF9" }}>
-                      🛍️ Ürünleri & Mağazaları Gör
+                      🛍️ Tüm Ürünleri Gör ({products.length})
+                    </button>
+                    <button onClick={() => setPage("admin")} className="px-6 py-3 rounded-full text-sm font-semibold" style={{ border: "1px solid rgba(255,255,255,0.35)", color: "#FFFDF9" }}>
+                      ➕ Kendi Ürününü Ekle
                     </button>
                   </div>
                 </div>
 
-                {/* Ana Sayfada Öne Çıkan Ürünler ve Doğrudan Mağaza Butonları */}
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-serif font-bold">Popüler Dermokozmetikler (Trendyol · Sephora · Amazon)</h2>
+                  <h2 className="text-2xl font-serif font-bold">Popüler Dermokozmetikler</h2>
                   <button onClick={() => setPage("products")} className="text-xs underline font-semibold" style={{ color: C.accent }}>
-                    Tümünü Gör →
+                    Tümünü Gör ({products.length}) →
                   </button>
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {products.slice(0, 3).map((p) => (
+                  {products.slice(0, 6).map((p) => (
                     <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* ADMIN & AFFILIATE KOMİSYON TAKİBİ (TRENDYOL / SEPHORA / AMAZON SABİT KARTLARIYLA) */}
+            {/* ADMIN: GÖRSEL ÜRÜN EKLEME STÜDYOSU & AFFILIATE TAKİBİ */}
             {page === "admin" && (
               <div className="max-w-4xl mx-auto space-y-6">
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+
+                {/* 1. YENİ GERÇEK ÜRÜN EKLEME FORMU */}
+                <div className="rounded-3xl p-6 md:p-8" style={{ background: C.card, border: `2px solid ${C.accent}` }}>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div>
-                      <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: C.accent }}>
-                        AFFILIATE NETWORK DASHBOARD
+                      <div className="text-[10px] uppercase tracking-widest font-bold" style={{ color: C.accent }}>
+                        GÖRSEL ÜRÜN YÖNETİM STÜDYOSU
                       </div>
-                      <h2 className="text-2xl font-serif font-bold">Admin & Affiliate Komisyon Takibi</h2>
+                      <h2 className="text-2xl font-serif font-bold">➕ Sitenize Yeni Gerçek Ürün Ekleyin</h2>
                     </div>
                     <button
-                      onClick={() => setPage("products")}
+                      onClick={copyCatalogForGithub}
                       className="px-4 py-2 rounded-full text-xs font-semibold"
                       style={{ background: C.ink, color: "#FFFDF9" }}
                     >
-                      🛍️ Ürünlere Git & Test Tıklaması Yap
+                      📋 Güncel Kataloğu GitHub İçin Kopyala
                     </button>
                   </div>
 
-                  {/* 3 Büyük Mağaza Kartı: Trendyol, Sephora, Amazon */}
-                  <div className="grid sm:grid-cols-3 gap-3 mb-6">
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">Marka Adı *</label>
+                      <input
+                        value={newProd.brand}
+                        onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
+                        placeholder="Örn: LA ROCHE-POSAY"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-[11px] font-semibold block mb-1">Ürün Tam Adı *</label>
+                      <input
+                        value={newProd.name}
+                        onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
+                        placeholder="Örn: Effaclar Duo+M Leke Karşıtı Bakım Kremi 40ml"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-3 gap-3 mb-3">
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">Kategori</label>
+                      <select
+                        value={newProd.category}
+                        onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      >
+                        {["Serum", "Nemlendirici", "Temizleyici", "Güneş Kremi", "Peeling / Tonik", "Bakım / Krem"].map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">Fiyat (TL ₺)</label>
+                      <input
+                        type="number"
+                        value={newProd.price}
+                        onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
+                        placeholder="650"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">Cilt Uyum Skoru (%)</label>
+                      <input
+                        type="number"
+                        value={newProd.score}
+                        onChange={(e) => setNewProd({ ...newProd, score: e.target.value })}
+                        placeholder="95"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="text-[11px] font-semibold block mb-1">
+                      Ürün Fotoğraf Linki (İsteğe Bağlı — Trendyol/Sephora'da resme sağ tıklayıp 'Resim adresini kopyala' deyin)
+                    </label>
+                    <input
+                      value={newProd.image}
+                      onChange={(e) => setNewProd({ ...newProd, image: e.target.value })}
+                      placeholder="https://cdn.dsmcdn.com/..."
+                      className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                      style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                    />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">İçindekiler / Aktifler (Virgülle ayırın)</label>
+                      <input
+                        value={newProd.ingredients}
+                        onChange={(e) => setNewProd({ ...newProd, ingredients: e.target.value })}
+                        placeholder="Niacinamide, Panthenol, Hyaluronic Acid"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">Neden Uygun? (Virgülle ayırın)</label>
+                      <input
+                        value={newProd.why}
+                        onChange={(e) => setNewProd({ ...newProd, why: e.target.value })}
+                        placeholder="Gözenek görünümünü dengeler, Bariyeri onarır"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-3 gap-3 mb-4">
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1" style={{ color: "#F27A1A" }}>
+                        Trendyol Linkiniz (Boşsa otomatik arar)
+                      </label>
+                      <input
+                        value={newProd.trendyol}
+                        onChange={(e) => setNewProd({ ...newProd, trendyol: e.target.value })}
+                        placeholder="https://ty.gl/... veya https://www.trendyol.com/..."
+                        className="w-full px-3 py-2 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1">
+                        Sephora Linkiniz (Boşsa otomatik arar)
+                      </label>
+                      <input
+                        value={newProd.sephora}
+                        onChange={(e) => setNewProd({ ...newProd, sephora: e.target.value })}
+                        placeholder="https://www.sephora.com.tr/..."
+                        className="w-full px-3 py-2 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold block mb-1" style={{ color: "#FF9900" }}>
+                        Amazon Linkiniz (Boşsa otomatik arar)
+                      </label>
+                      <input
+                        value={newProd.amazon}
+                        onChange={(e) => setNewProd({ ...newProd, amazon: e.target.value })}
+                        placeholder="https://amzn.to/... veya https://www.amazon.com.tr/..."
+                        className="w-full px-3 py-2 rounded-xl text-xs outline-none"
+                        style={{ background: C.bg, border: `1px solid ${C.line}` }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleAddRealProduct}
+                    className="w-full py-3.5 rounded-full text-sm font-bold transition hover:opacity-90"
+                    style={{ background: C.accent, color: "#fff" }}
+                  >
+                    ✓ Ürünü Siteme Ekle
+                  </button>
+                </div>
+
+                {/* 2. MEVCUT ÜRÜNLERİ YÖNETME / SİLME LİSTESİ */}
+                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-serif font-bold">Katalogdaki Ürünler ({products.length})</h3>
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem("cozmetix_custom_catalog_v2");
+                        setProducts(REAL_DERMO_CATALOG);
+                        notify("Katalog varsayılan 8 ürüne sıfırlandı.");
+                      }}
+                      className="text-xs underline"
+                      style={{ color: C.muted }}
+                    >
+                      Varsayılana Sıfırla
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                    {products.map((p) => (
+                      <div key={p.id} className="flex items-center justify-between gap-2 p-3 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
+                        <div>
+                          <strong>{p.brand}</strong> — {p.name}
+                          <span className="ml-2 font-bold" style={{ color: C.accent2 }}>₺{p.price} (%{p.score})</span>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteProduct(p.id)}
+                          className="px-3 py-1 rounded-lg text-[11px] font-semibold"
+                          style={{ background: "#FDECEC", color: C.accent }}
+                        >
+                          Sil
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. AFFILIATE KOMİSYON PANELİ */}
+                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
+                  <h2 className="text-2xl font-serif font-bold mb-4">Affiliate Mağaza & Komisyon Takibi</h2>
+                  <div className="grid sm:grid-cols-3 gap-3 mb-5">
                     {Object.values(MERCHANTS).map((m) => (
                       <div key={m.id} className="rounded-2xl p-4" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
                         <div className="flex items-center justify-between mb-2">
@@ -541,56 +873,12 @@
                         <div className="text-2xl font-serif font-bold my-1">
                           {countByStore[m.id]} <span className="text-xs font-sans font-normal" style={{ color: C.muted }}>Tıklama</span>
                         </div>
-                        <div className="text-[11px] truncate" style={{ color: C.muted }}>
-                          Partner ID: <code>{m.partnerId}</code>
-                        </div>
                       </div>
                     ))}
                   </div>
-
-                  {/* Toplam Özet Barı */}
-                  <div className="rounded-2xl p-4 mb-5 flex flex-wrap items-center justify-between gap-3" style={{ background: C.ink, color: "#FFFDF9" }}>
-                    <div>
-                      <div className="text-[10px] uppercase tracking-widest" style={{ color: C.gold }}>Toplam Mağaza Tıklaması</div>
-                      <div className="text-2xl font-serif font-bold">{affiliateClicks.length}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] uppercase tracking-widest" style={{ color: C.gold }}>Kazanılan Affiliate Komisyonu</div>
-                      <div className="text-2xl font-serif font-bold" style={{ color: "#A8E6CF" }}>${totalCommission}</div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        handleMerchantClick(products[0], "trendyol");
-                      }}
-                      className="px-4 py-2 rounded-full text-xs font-semibold"
-                      style={{ background: "#F27A1A", color: "#fff" }}
-                    >
-                      + Örnek Trendyol Tıklaması Test Et
-                    </button>
-                  </div>
-
-                  {/* Canlı Tıklama Listesi */}
-                  <div className="text-xs font-semibold mb-2" style={{ color: C.muted }}>
-                    Son Mağaza Yönlendirmeleri (Trendyol · Sephora · Amazon)
-                  </div>
-                  <div className="space-y-2">
-                    {affiliateClicks.map((c) => (
-                      <div key={c.id} className="flex items-center justify-between text-xs p-3 rounded-xl" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                        <div>
-                          <span
-                            className="inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white mr-2"
-                            style={{ background: MERCHANTS[c.merchantKey]?.badgeColor || C.ink }}
-                          >
-                            {c.merchant}
-                          </span>
-                          <strong>{c.brand}</strong> — {c.name}
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-[10px]" style={{ color: C.muted }}>{c.time}</span>
-                          <strong style={{ color: C.accent2 }}>+${c.commission}</strong>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="rounded-2xl p-4 flex items-center justify-between" style={{ background: C.ink, color: "#FFFDF9" }}>
+                    <span>Toplam Tahmini Komisyon Havuzu:</span>
+                    <strong className="text-xl font-serif" style={{ color: "#A8E6CF" }}>₺{totalCommission}</strong>
                   </div>
                 </div>
               </div>
@@ -599,6 +887,26 @@
             {/* ÜRÜNLER, INCI OCR VE ÇAKIŞMA KONTROLÜ */}
             {page === "products" && (
               <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h2 className="text-3xl font-serif font-bold">Dermokozmetik Kataloğu ({products.length} Ürün)</h2>
+                    <p className="text-xs" style={{ color: C.muted }}>Her ürün kartının altından doğrudan Trendyol, Sephora veya Amazon'a gidebilirsiniz</p>
+                  </div>
+                  <button
+                    onClick={() => setPage("admin")}
+                    className="px-4 py-2.5 rounded-full text-xs font-semibold"
+                    style={{ background: C.accent, color: "#fff" }}
+                  >
+                    ➕ Yeni Ürün Ekle
+                  </button>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {products.map((p) => (
+                    <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
+                  ))}
+                </div>
+
                 <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
                   <h3 className="text-xl font-serif font-bold mb-2">Ürün Arkası İçindekiler (INCI) Tarayıcı</h3>
                   <div className="flex flex-col sm:flex-row gap-2 mb-3">
@@ -624,32 +932,6 @@
                     Cozmetix Match Score: %{inciScore}
                   </div>
                 </div>
-
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h3 className="text-xl font-serif font-bold mb-3">İçerik Çakışma Denetleyicisi</h3>
-                  <div className="grid sm:grid-cols-2 gap-3 mb-3">
-                    <select value={compA} onChange={(e) => setCompA(Number(e.target.value))} className="p-2.5 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                      {products.map((p) => <option key={p.id} value={p.id}>{p.brand} — {p.name}</option>)}
-                    </select>
-                    <select value={compB} onChange={(e) => setCompB(Number(e.target.value))} className="p-2.5 rounded-xl text-xs" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
-                      {products.map((p) => <option key={p.id} value={p.id}>{p.brand} — {p.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="p-3.5 rounded-xl text-xs" style={{ background: C.bg }}>
-                    <strong style={{ color: isConflict ? C.accent : C.accent2 }}>
-                      {isConflict ? "✕ Çakışma Uyarısı (BHA + Retinol): " : "✓ Güvenli Sinerji: "}
-                    </strong>
-                    {isConflict
-                      ? "Aynı akşam üst üste uygulamayın; farklı gecelerde dönüşümlü kullanın."
-                      : "Aynı rutinde güvenle birlikte uygulanabilir."}
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {products.map((p) => (
-                    <ProductCard key={p.id} p={p} onOpen={setDetail} onMerchantClick={handleMerchantClick} />
-                  ))}
-                </div>
               </div>
             )}
 
@@ -661,7 +943,6 @@
                   Yüzünüzü çerçeveye hizalayın veya hızlı demoyu başlatın
                 </p>
                 <LiveCameraCapture
-                  lang={lang}
                   onCapture={() => {
                     notify("✓ Cilt analizi tamamlandı!");
                     setPage("results");
@@ -673,7 +954,7 @@
             {/* PROFİL SONUÇLARI */}
             {page === "results" && (
               <div className="max-w-4xl mx-auto">
-                <h2 className="text-3xl font-serif font-bold text-center mb-6">Combination Skin Profile</h2>
+                <h2 className="text-3xl font-serif font-bold text-center mb-6">Karma (Combination) Cilt Profiliniz</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
                   {INITIAL_SKIN_METRICS.map((m) => (
                     <Metric key={m.key} label={m.key} value={m.value} focus={m.focus} />
@@ -723,30 +1004,13 @@
                     })}
                   </div>
                 </div>
-
-                <div className="rounded-3xl p-6" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-                  <h3 className="text-xl font-serif font-bold mb-3">1. Gün vs 90. Gün Öncesi/Sonrası Kıyaslama</h3>
-                  <input
-                    type="range"
-                    min="10"
-                    max="90"
-                    value={sliderPos}
-                    onChange={(e) => setSliderPos(Number(e.target.value))}
-                    className="w-full mb-2"
-                  />
-                  <div className="flex justify-between text-xs" style={{ color: C.muted }}>
-                    <span>1. Gün (Ton Eşitsizliği: 51)</span>
-                    <span>Kaydırıcı: %{sliderPos}</span>
-                    <span style={{ color: C.accent2 }}>90. Gün (Ton Eşitsizliği: 33)</span>
-                  </div>
-                </div>
               </div>
             )}
 
             {/* DANIŞMAN */}
             {page === "chat" && (
               <div className="max-w-2xl mx-auto">
-                <h2 className="text-2xl font-serif font-bold mb-3">AI Beauty Advisor</h2>
+                <h2 className="text-2xl font-serif font-bold mb-3">AI Güzellik Danışmanı</h2>
                 <div className="rounded-3xl p-4 h-80 overflow-y-auto mb-3" style={{ background: C.card, border: `1px solid ${C.line}` }}>
                   {chatMsgs.map((m, i) => (
                     <div key={i} className={"flex mb-3 " + (m.role === "user" ? "justify-end" : "justify-start")}>
@@ -807,34 +1071,13 @@
               </div>
             )}
 
-            {/* COZMETIX+ */}
-            {page === "premium" && (
-              <div className="max-w-md mx-auto rounded-3xl p-8 text-center" style={{ background: C.ink, color: "#FFFDF9" }}>
-                <div className="text-xs uppercase tracking-widest mb-2" style={{ color: C.gold }}>COZMETIX+</div>
-                <h2 className="text-3xl font-serif font-bold mb-3">$9.99 / ay</h2>
-                <p className="text-xs mb-6" style={{ color: "#C9C2B8" }}>
-                  Sınırsız AI Analiz · INCI OCR · İçerik Uyumluluğu · Aylık PDF Raporu
-                </p>
-                <button
-                  onClick={() => {
-                    setIsPremium(!isPremium);
-                    notify("✓ Cozmetix+ durumu güncellendi!");
-                  }}
-                  className="w-full py-3 rounded-full text-xs font-semibold"
-                  style={{ background: C.accent, color: "#fff" }}
-                >
-                  {isPremium ? "Ücretsiz Plana Dön" : "Cozmetix+ Aktif Et"}
-                </button>
-              </div>
-            )}
-
             {/* B2B API */}
             {page === "brand" && (
               <div className="max-w-3xl mx-auto rounded-3xl p-6" style={{ background: C.ink, color: "#FFFDF9" }}>
                 <div className="text-xs uppercase tracking-widest mb-1" style={{ color: C.gold }}>B2B API PLAYGROUND</div>
                 <h2 className="text-2xl font-serif font-bold mb-4">POST /v1/product-match</h2>
                 <pre className="p-4 rounded-xl text-xs bg-black text-green-300 overflow-x-auto">
-                  {JSON.stringify({ status: 200, sku: "LRP-CICA-B5", cozmetixMatchScore: 94, badge: "Excellent Match" }, null, 2)}
+                  {JSON.stringify({ status: 200, sku: "LRP-CICA-B5", cozmetixMatchScore: 95, badge: "Excellent Match" }, null, 2)}
                 </pre>
               </div>
             )}
@@ -850,8 +1093,15 @@
                     </div>
                     <Score score={detail.score} />
                   </div>
-                  <div className="mb-4">
+                  <div className="mb-3">
                     {(detail.why || []).map((w) => <div key={w} className="text-xs mb-1">✓ {w}</div>)}
+                  </div>
+                  <div className="mb-4 flex flex-wrap gap-1">
+                    {(detail.ingredients || []).map((ing) => (
+                      <span key={ing} className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
+                        {ing}
+                      </span>
+                    ))}
                   </div>
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {Object.values(MERCHANTS).map((m) => (
